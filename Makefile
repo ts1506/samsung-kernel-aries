@@ -1,7 +1,12 @@
 VERSION = 3
 PATCHLEVEL = 0
+<<<<<<< HEAD
 SUBLEVEL = 8
 EXTRAVERSION =
+=======
+SUBLEVEL = 9
+EXTRAVERSION = -Devil_14
+>>>>>>> 6f286ca... 3.0.8-9 Patch for the Nexus S
 NAME = Sneaky Weasel
 
 # *DOCUMENTATION*
