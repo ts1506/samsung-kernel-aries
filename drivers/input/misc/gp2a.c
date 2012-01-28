@@ -66,6 +66,8 @@
 
 #define DELAY_LOWBOUND	(5 * NSEC_PER_MSEC)
 
+static int global_adc = 0;
+
 /* start time delay for light sensor in nano seconds */
 #define LIGHT_SENSOR_START_TIME_DELAY 50000000
 
@@ -312,6 +314,12 @@ static struct attribute_group proximity_attribute_group = {
 	.attrs = proximity_sysfs_attrs,
 };
 
+int ls_get_adcvalue(void)
+{
+	return global_adc;
+}
+EXPORT_SYMBOL_GPL(ls_get_adcvalue);
+
 static void gp2a_work_func_light(struct work_struct *work)
 {
 	struct gp2a_data *gp2a = container_of(work, struct gp2a_data,
@@ -321,6 +329,8 @@ static void gp2a_work_func_light(struct work_struct *work)
 		pr_err("adc returned error %d\n", adc);
 		return;
 	}
+	global_adc = adc;
+
 	gp2a_dbgmsg("adc returned light value %d\n", adc);
 	input_report_abs(gp2a->light_input_dev, ABS_MISC, adc);
 	input_sync(gp2a->light_input_dev);

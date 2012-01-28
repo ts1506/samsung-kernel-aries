@@ -14,6 +14,7 @@ obj-$(CONFIG_FB_S3C_NT35580)     += s3cfb_nt35580.o
 obj-$(CONFIG_FB_S3C_AMS701KA)	+= s3cfb_ams701ka.o
 obj-$(CONFIG_FB_S3C_MDNIE)      += s3cfb_mdnie.o s3cfb_ielcd.o
 obj-$(CONFIG_FB_S3C_CMC623)     += tune_cmc623.o
+obj-$(CONFIG_FB_SEMA_AUTOBR)    += sema_autobr.o
 endif
 
 ifeq ($(CONFIG_FB_S3C_DEBUG),y)
