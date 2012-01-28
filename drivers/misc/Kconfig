@@ -609,4 +609,10 @@ config SAMSUNG_PARAM
 	help
 	  Driver for communication with Samsung's secondary bootloader
 
+config LIVE_OC
+       bool "Support for Live OC"
+       default y
+       help
+         Say Y here to enable Live OC
+
 endif # MISC_DEVICES
