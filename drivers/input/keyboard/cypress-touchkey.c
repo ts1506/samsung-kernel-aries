@@ -327,22 +327,22 @@ static void cypress_touchkey_early_suspend(struct early_suspend *h)
 
 	disable_irq(devdata->client->irq);
 
-	if (!bl_on)
+	if (!bln_notification_ongoing)
 #ifdef CONFIG_KEYPAD_CYPRESS_TOUCH_BLN
 	/*
 	 * Disallow powering off the touchkey controller
 	 * while a led notification is ongoing
 	 */
 	{
-	if (!bln_notification_ongoing) 
 #endif
 
-	devdata->pdata->touchkey_onoff(TOUCHKEY_OFF);
-#ifdef CONFIG_KEYPAD_CYPRESS_TOUCH_BLN
+	  devdata->pdata->touchkey_onoff(TOUCHKEY_OFF);
+	  devdata->pdata->touchkey_sleep_onoff(TOUCHKEY_OFF);
+	  devdata->is_sleeping = true;
 	}
+#ifdef CONFIG_KEYPAD_CYPRESS_TOUCH_BLN
 #endif
 	all_keys_up(devdata);
-	devdata->is_sleeping = true;
 
 out:
 	up(&enable_sem);
