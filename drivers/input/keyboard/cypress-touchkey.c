@@ -321,26 +321,24 @@ static void cypress_touchkey_early_suspend(struct early_suspend *h)
 
 	devdata->is_powering_on = true;
 
-	if (unlikely(devdata->is_dead)) {
+	if (unlikely(devdata->is_dead))
 		goto out;
-	}
 
 	disable_irq(devdata->client->irq);
 
-	if (!bln_notification_ongoing)
 #ifdef CONFIG_KEYPAD_CYPRESS_TOUCH_BLN
 	/*
 	 * Disallow powering off the touchkey controller
 	 * while a led notification is ongoing
 	 */
+	if (!bln_notification_ongoing)
 	{
 #endif
-
-	  devdata->pdata->touchkey_onoff(TOUCHKEY_OFF);
-	  devdata->pdata->touchkey_sleep_onoff(TOUCHKEY_OFF);
-	  devdata->is_sleeping = true;
-	}
+	devdata->pdata->touchkey_onoff(TOUCHKEY_OFF);
+	devdata->pdata->touchkey_sleep_onoff(TOUCHKEY_OFF);
+	devdata->is_sleeping = true;
 #ifdef CONFIG_KEYPAD_CYPRESS_TOUCH_BLN
+	}
 #endif
 	all_keys_up(devdata);
 
@@ -446,7 +444,7 @@ static void enable_led_notification(void){
 		pr_info("%s: not in touchmode\n", __FUNCTION__); //remove me
 			/* signal ongoing led notification */
 			bln_notification_ongoing = true;
-
+			bln_devdata->pdata->touchkey_sleep_onoff(TOUCHKEY_ON);
 			/*
 			 * power on the touchkey controller
 			 * This is actually not needed, but it is intentionally
@@ -470,6 +468,7 @@ static void enable_led_notification(void){
 static void disable_led_notification(void){
 	pr_info("%s: notification led disabled\n", __FUNCTION__);
 
+	bln_devdata->pdata->touchkey_sleep_onoff(TOUCHKEY_OFF);
 	/* disable the blink state */
 	bln_blink_enabled = false;
 
