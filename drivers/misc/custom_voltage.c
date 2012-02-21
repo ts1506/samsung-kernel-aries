@@ -28,6 +28,12 @@ static unsigned long * int_voltages = NULL;
 static unsigned long * freqs = NULL;
 static unsigned long max_voltages[2] = {0, 0};
 
+unsigned long * get_arm_voltages(void)
+{
+	return arm_voltages;
+}
+EXPORT_SYMBOL(get_arm_voltages);
+
 ssize_t customvoltage_armvolt_read(struct device * dev, struct device_attribute * attr, char * buf)
 {
     int i, j = 0;

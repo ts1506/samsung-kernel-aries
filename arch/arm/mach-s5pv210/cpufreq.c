@@ -742,18 +742,23 @@ static void liveoc_init(void)
     return;
 }
 
+extern unsigned long * get_arm_voltages(void);
+
 void liveoc_update(unsigned int oc_value)
 {
     int i, index, index_min = L0, index_max = L0, divider;
 
     unsigned long fclk;
-
+    unsigned long * arm_voltages = NULL;
+    
     struct cpufreq_policy * policy = cpufreq_cpu_get(0);
 
     mutex_lock(&set_freq_lock);
 
     i = 0;
 
+    arm_voltages = get_arm_voltages();
+    
     while (s5pv210_freq_table[i].frequency != CPUFREQ_TABLE_END) {
 
 	index = s5pv210_freq_table[i].index;
@@ -771,10 +776,38 @@ void liveoc_update(unsigned int oc_value)
 	if (original_fclk[index] / (clkdiv_val[index][0] + 1) == SLEEP_FREQ)
 	    sleep_freq = s5pv210_freq_table[i].frequency;
 
+	if (oc_value >= 100 && oc_value <= 110) {
+		if (index == 0) 
+			dvs_conf[0].arm_volt = 1275000;	
+		else if (index == 1) 
+			dvs_conf[1].arm_volt = 1200000;	
+	} else if (oc_value > 110 && oc_value <= 115) {
+		if (index == 0) 
+			dvs_conf[0].arm_volt = 1300000;	
+		else if (index == 1) 
+			dvs_conf[1].arm_volt = 1225000;	
+	} else if (oc_value > 115 && oc_value <= 120) {
+		if (index == 0) 
+			dvs_conf[0].arm_volt = 1325000;	
+		else if (index == 1) 
+			dvs_conf[1].arm_volt = 1225000;	
+	} else if (oc_value > 120 && oc_value <= 130) {
+		if (index == 0) 
+			dvs_conf[0].arm_volt = 1350000;	
+		else if (index == 1) 
+			dvs_conf[1].arm_volt = 1250000;	
+	}
+	
+	if (arm_voltages) {
+		arm_voltages[0] = dvs_conf[0].arm_volt; 
+		arm_voltages[1] = dvs_conf[1].arm_volt; 	  
+	}
+	  
+
 	fclk /= 1000;
 
 	divider = find_divider(fclk);
-
+	
 	apll_values[index] = ((1 << 31) | (((fclk * divider) / 24) << 16) | (divider << 8) | (1));
 
 	i++;
