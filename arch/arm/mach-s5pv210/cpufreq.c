@@ -790,12 +790,12 @@ void liveoc_update(unsigned int oc_value)
 		if (index == 0) 
 			dvs_conf[0].arm_volt = 1325000;	
 		else if (index == 1) 
-			dvs_conf[1].arm_volt = 1225000;	
+			dvs_conf[1].arm_volt = 1250000;	
 	} else if (oc_value > 120 && oc_value <= 130) {
 		if (index == 0) 
 			dvs_conf[0].arm_volt = 1350000;	
 		else if (index == 1) 
-			dvs_conf[1].arm_volt = 1250000;	
+			dvs_conf[1].arm_volt = 1275000;	
 	}
 	
 	if (arm_voltages) {
