@@ -32,6 +32,9 @@
 
 #include <trace/events/power.h>
 
+static unsigned int lock_sc_min = 0;
+extern unsigned long get_cpuminfreq(void);
+
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
  * level driver of CPUFreq support, and its spinlock. This lock
@@ -392,8 +395,63 @@ static ssize_t store_##file_name					\
 	return ret ? ret : count;					\
 }
 
-store_one(scaling_min_freq, min);
+//store_one(scaling_min_freq, min);
 store_one(scaling_max_freq, max);
+
+static ssize_t store_scaling_min_freq
+(struct cpufreq_policy *policy, const char *buf, size_t count)
+{
+	unsigned int ret = -EINVAL;
+	struct cpufreq_policy new_policy;
+
+	if (lock_sc_min)
+		return -EINVAL;
+	
+	ret = cpufreq_get_policy(&new_policy, policy->cpu);
+	if (ret)
+		return -EINVAL;
+
+	ret = sscanf(buf, "%u", &new_policy.min);
+	if (ret != 1)
+		return -EINVAL;
+
+	ret = __cpufreq_set_policy(policy, &new_policy);
+	policy->user_policy.min = policy->min;
+
+	return ret ? ret : count;
+}
+
+static ssize_t show_lock_scaling_min(struct cpufreq_policy *policy, char *buf)
+{
+	return sprintf(buf, "%u\n", lock_sc_min);
+}
+
+static ssize_t store_lock_scaling_min(struct cpufreq_policy *policy, const char *buf, size_t count)
+{
+	unsigned int ret = -EINVAL;
+	unsigned int input;
+	struct cpufreq_policy new_policy;
+	
+	ret = sscanf(buf, "%u", &input);
+	if (ret != 1 || input > 1)
+		return -EINVAL;
+
+	lock_sc_min = input;
+	
+	policy->min = policy->cpuinfo.min_freq = get_cpuminfreq();
+	
+	/*ret = cpufreq_get_policy(&new_policy, policy->cpu);
+	if (ret)
+		return -EINVAL;
+
+	
+	new_policy.min = get_cpuminfreq();
+	
+	ret = __cpufreq_set_policy(policy, &new_policy);*/
+	policy->user_policy.min = policy->min;
+
+	return ret ? ret : count;
+}
 
 /**
  * show_cpuinfo_cur_freq - current CPU frequency as detected by hardware
@@ -596,6 +654,7 @@ cpufreq_freq_attr_rw(scaling_min_freq);
 cpufreq_freq_attr_rw(scaling_max_freq);
 cpufreq_freq_attr_rw(scaling_governor);
 cpufreq_freq_attr_rw(scaling_setspeed);
+cpufreq_freq_attr_rw(lock_scaling_min);
 #ifdef CONFIG_CUSTOM_VOLTAGE
 cpufreq_freq_attr_rw(UV_mV_table);
 #endif
@@ -612,6 +671,7 @@ static struct attribute *default_attrs[] = {
 	&scaling_driver.attr,
 	&scaling_available_governors.attr,
 	&scaling_setspeed.attr,
+	&lock_scaling_min.attr,
 #ifdef CONFIG_CUSTOM_VOLTAGE
 	&UV_mV_table.attr,
 #endif
