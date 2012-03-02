@@ -104,8 +104,6 @@ struct gp2a_data {
 
 struct gp2a_data *_gp2a;
 
-static bool block_ls = false;
-
 int gp2a_i2c_write(struct gp2a_data *gp2a, u8 reg, u8 *val)
 {
 	int err = 0;
@@ -155,37 +153,6 @@ static void gp2a_light_disable(struct gp2a_data *gp2a)
 	cancel_work_sync(&gp2a->work_light);
 }
 
-void block_ls_update(void)
-{
-	struct gp2a_data *gp2a = _gp2a;
-
-	block_ls = true;
-	
-	mutex_lock(&gp2a->power_lock);
-
-	if (!(gp2a->power_state & LIGHT_ENABLED)) {
-		if (!gp2a->power_state)
-			gp2a->pdata->power(true);
-		gp2a->power_state |= LIGHT_ENABLED;
-		gp2a_light_enable(gp2a);
-	}
-
-	gp2a->light_poll_delay = ns_to_ktime(200 * NSEC_PER_MSEC);
-	if (gp2a->power_state & LIGHT_ENABLED) {
-		gp2a_light_disable(gp2a);
-		gp2a_light_enable(gp2a);
-	}
-	
-	mutex_unlock(&gp2a->power_lock);
-}
-EXPORT_SYMBOL_GPL(block_ls_update);
-
-void unblock_ls_update(void)
-{	
-	block_ls = false;
-}
-EXPORT_SYMBOL_GPL(unblock_ls_update);
-
 static ssize_t poll_delay_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
@@ -202,9 +169,6 @@ static ssize_t poll_delay_store(struct device *dev,
 	int64_t new_delay;
 	int err;
 	
-	//if (block_ls)
-	//	return size;
-
 	err = strict_strtoll(buf, 10, &new_delay);
 	if (err < 0)
 		return err;
@@ -218,9 +182,6 @@ static ssize_t poll_delay_store(struct device *dev,
 		new_delay = DELAY_LOWBOUND;
 	}
 
-	if (block_ls)
-		new_delay = 200000000;
-	
 	mutex_lock(&gp2a->power_lock);
 	if (new_delay != ktime_to_ns(gp2a->light_poll_delay)) {
 		gp2a->light_poll_delay = ns_to_ktime(new_delay);
@@ -254,11 +215,6 @@ static ssize_t light_enable_store(struct device *dev,
 				  struct device_attribute *attr,
 				  const char *buf, size_t size)
 {
-	//if (block_ls) {
-	//	pr_err("%s: Light sensor is blocked\n", __func__, *buf);
-	//	return -EINVAL;
-	//}
-
 	struct gp2a_data *gp2a = dev_get_drvdata(dev);
 	bool new_value;
 

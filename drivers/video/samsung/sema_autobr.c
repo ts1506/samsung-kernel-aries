@@ -319,7 +319,6 @@ static int autobr_init(void)
 		queue_delayed_work(wq, &autobr_wq, delay);
 
 	block_bl_update();
-	//block_ls_update();
 
 	register_early_suspend(&_powersave_early_suspend);
 
@@ -339,7 +338,6 @@ static void autobr_exit(void)
 	}
 
 	unblock_bl_update();
-	//unblock_ls_update();
 
 	unregister_early_suspend(&_powersave_early_suspend);
 
