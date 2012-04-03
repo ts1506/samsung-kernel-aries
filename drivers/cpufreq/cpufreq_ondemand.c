@@ -280,6 +280,7 @@ static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
 	if (ret != 1)
 		return -EINVAL;
 	dbs_tuners_ins.sampling_rate = max(input, min_sampling_rate);
+	orig_sampling_rate = dbs_tuners_ins.sampling_rate;
 	return count;
 }
 
@@ -340,7 +341,6 @@ static ssize_t store_sampling_down_max_momentum(struct kobject *a,
 
 	if (ret != 1 || input > MAX_SAMPLING_DOWN_FACTOR - dbs_tuners_ins.sampling_down_factor  || input < 0)
 		return -EINVAL;
-	mutex_lock(&dbs_mutex);
 	dbs_tuners_ins.sampling_down_max_momentum = input;
 
 	/* Reset momentum_adder*/
@@ -349,7 +349,6 @@ static ssize_t store_sampling_down_max_momentum(struct kobject *a,
 		dbs_info = &per_cpu(od_cpu_dbs_info, j);
 		dbs_info->momentum_adder = 0;
 	}
-	mutex_unlock(&dbs_mutex);
 
 	return count;
 }
@@ -363,7 +362,6 @@ static ssize_t store_sampling_down_momentum_sensitivity(struct kobject *a,
 
 	if (ret != 1 || input > MAX_SAMPLING_DOWN_MOMENTUM_SENSITIVITY  || input < 1)
 		return -EINVAL;
-	mutex_lock(&dbs_mutex);
 	dbs_tuners_ins.sampling_down_momentum_sensitivity = input;
 
 	/* Reset momentum_adder*/
@@ -372,7 +370,6 @@ static ssize_t store_sampling_down_momentum_sensitivity(struct kobject *a,
 		dbs_info = &per_cpu(od_cpu_dbs_info, j);
 		dbs_info->momentum_adder = 0;
 	}
-	mutex_unlock(&dbs_mutex);
 
 	return count;
 }
@@ -568,37 +565,34 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		
 		/* Calculate momentum and update sampling down factor */
 
-		mutex_lock(&dbs_mutex);
-
-		if (++this_dbs_info->momentum_adder > dbs_tuners_ins.sampling_down_momentum_sensitivity)
-			this_dbs_info->momentum_adder = dbs_tuners_ins.sampling_down_momentum_sensitivity;
-
-		dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
+		if (this_dbs_info->momentum_adder < dbs_tuners_ins.sampling_down_momentum_sensitivity) {
+			//mutex_lock(&dbs_mutex);
+			
+			this_dbs_info->momentum_adder++;	
+			dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
 							  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
+			/* if (dbs_tuners_ins.sampling_down_momentum > dbs_tuners_ins.sampling_down_max_momentum)
+				dbs_tuners_ins.sampling_down_momentum = dbs_tuners_ins.sampling_down_max_momentum; */
+			dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
 
-		if (dbs_tuners_ins.sampling_down_momentum > dbs_tuners_ins.sampling_down_max_momentum)
-			dbs_tuners_ins.sampling_down_momentum = dbs_tuners_ins.sampling_down_max_momentum;
-
-		dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
-
-		mutex_unlock(&dbs_mutex);
-		
+			//mutex_unlock(&dbs_mutex);
+		}
+		      
 		return;
 	}
 
 	/* Calculate momentum and update sampling down factor */
 
-	mutex_lock(&dbs_mutex);
+	if (this_dbs_info->momentum_adder > 0) {
+		//mutex_lock(&dbs_mutex);
 
-	if (this_dbs_info->momentum_adder > 0)
 		this_dbs_info->momentum_adder--;
+		dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
+							  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
+		dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
 
-	dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
-						  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
-
-	dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
-
-	mutex_unlock(&dbs_mutex);
+		//mutex_unlock(&dbs_mutex);
+	}
 	
 	/* Check for frequency decrease */
 	/* if we cannot reduce the frequency anymore, break out early */
@@ -718,24 +712,16 @@ static int should_io_be_busy(void)
 
 static void powersave_early_suspend(struct early_suspend *handler)
 {
-	mutex_lock(&dbs_mutex);
-
 	dbs_tuners_ins.io_is_busy = 0;
 	dbs_tuners_ins.sampling_down_max_momentum = 0;
 	dbs_tuners_ins.sampling_rate *= 4;
-
-	mutex_unlock(&dbs_mutex);
 }
 
 static void powersave_late_resume(struct early_suspend *handler)
 {
-	mutex_lock(&dbs_mutex);
-
 	dbs_tuners_ins.io_is_busy = 1;
 	dbs_tuners_ins.sampling_down_max_momentum = DEF_SAMPLING_DOWN_MAX_MOMENTUM;
 	dbs_tuners_ins.sampling_rate = orig_sampling_rate;
-
-	mutex_unlock(&dbs_mutex);
 }
 
 static struct early_suspend _powersave_early_suspend = {
