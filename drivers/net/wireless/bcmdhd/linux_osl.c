@@ -226,6 +226,7 @@ osl_attach(void *pdev, uint bustype, bool pkttag)
 	}
 
 	if (!bcm_static_skb) {
+		int i;
 		void *skb_buff_ptr = dhd_os_prealloc(osh, 4, 0);
 
 		if (skb_buff_ptr) {
