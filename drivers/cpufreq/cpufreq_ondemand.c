@@ -566,34 +566,24 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		/* Calculate momentum and update sampling down factor */
 
 		if (this_dbs_info->momentum_adder < dbs_tuners_ins.sampling_down_momentum_sensitivity) {
-			//mutex_lock(&dbs_mutex);
-			
-			this_dbs_info->momentum_adder++;	
-			dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
+			this_dbs_info->momentum_adder++;
+			dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum)
 							  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
-			/* if (dbs_tuners_ins.sampling_down_momentum > dbs_tuners_ins.sampling_down_max_momentum)
-				dbs_tuners_ins.sampling_down_momentum = dbs_tuners_ins.sampling_down_max_momentum; */
 			dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
-
-			//mutex_unlock(&dbs_mutex);
 		}
-		      
+
 		return;
 	}
 
 	/* Calculate momentum and update sampling down factor */
 
 	if (this_dbs_info->momentum_adder > 0) {
-		//mutex_lock(&dbs_mutex);
-
 		this_dbs_info->momentum_adder--;
 		dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum) 
 							  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
 		dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
-
-		//mutex_unlock(&dbs_mutex);
 	}
-	
+
 	/* Check for frequency decrease */
 	/* if we cannot reduce the frequency anymore, break out early */
 	if (policy->cur == policy->min)

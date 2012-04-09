@@ -461,7 +461,14 @@ static void enable_led_notification(void){
 			pr_info("%s: notification led enabled\n", __FUNCTION__);
 		}
 		else
+#ifdef CONFIG_TOUCH_WAKE
+		{
+			enable_touchkey_backlights();
+		}
+#else
 			pr_info("%s: cannot set notification led, touchkeys are enabled\n",__FUNCTION__);
+#endif
+	  
 	}
 }
 
@@ -476,7 +483,11 @@ static void disable_led_notification(void){
 	if (bln_devdata->is_powering_on){
 		disable_touchkey_backlights();
 	}
-
+#ifdef CONFIG_TOUCH_WAKE
+	else {
+		disable_touchkey_backlights();
+	}
+#endif 
 	/* signal led notification is disabled */
 	bln_notification_ongoing = false;
 	
