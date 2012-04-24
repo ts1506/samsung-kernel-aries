@@ -472,8 +472,11 @@ static int mfc_mmap(struct file *filp, struct vm_area_struct *vma)
 				vir_size, phy_size);
 		return -EINVAL;
 	}
-
+#ifdef CONFIG_S5P_HUGEMEM
 	mfc_ctx->port0_mmap_size = (vir_size / 2);
+#else
+	mfc_ctx->port0_mmap_size = mfc_port0_memsize - firmware_size;
+#endif
 
 	vma->vm_flags |= VM_RESERVED | VM_IO;
 	if (mfc_ctx->buf_type != MFC_BUFFER_CACHE)

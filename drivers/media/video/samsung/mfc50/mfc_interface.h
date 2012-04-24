@@ -38,7 +38,11 @@
 #define IOCTL_MFC_BUF_CACHE			0x00801000
 
 /* MFC H/W support maximum 32 extra DPB */
+#ifdef CONFIG_S5P_HUGEMEM
 #define MFC_MAX_EXTRA_DPB                      5
+#else
+#define MFC_MAX_EXTRA_DPB                      4
+#endif
 
 #define ENC_PROFILE_LEVEL(profile, level)      ((profile) | ((level) << 8))
 
