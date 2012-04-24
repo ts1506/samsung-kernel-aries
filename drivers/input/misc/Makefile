@@ -22,7 +22,6 @@ obj-$(CONFIG_INPUT_BMA023)		+= bma023.o
 obj-$(CONFIG_INPUT_KR3DH)		+= kr3dh.o
 
 ifeq ($(CONFIG_SAMSUNG_FASCINATE),y)
-obj-$(CONFIG_INPUT_YAS529)		+= yas529_atlas.o
 else
 obj-$(CONFIG_INPUT_YAS529)		+= yas529.o
 endif
