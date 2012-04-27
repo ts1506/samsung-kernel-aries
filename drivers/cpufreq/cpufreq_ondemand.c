@@ -593,7 +593,10 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		/* Calculate momentum and update sampling down factor */
 
 		if (this_dbs_info->momentum_adder < dbs_tuners_ins.sampling_down_momentum_sensitivity) {
-			this_dbs_info->momentum_adder++;
+			if (dbs_tuners_ins.smooth_ui && touch_state_val)
+				this_dbs_info->momentum_adder = dbs_tuners_ins.sampling_down_momentum_sensitivity;
+			else
+				this_dbs_info->momentum_adder++;
 			dbs_tuners_ins.sampling_down_momentum = (this_dbs_info->momentum_adder * dbs_tuners_ins.sampling_down_max_momentum)
 							  / dbs_tuners_ins.sampling_down_momentum_sensitivity;
 			dbs_tuners_ins.sampling_down_factor = orig_sampling_down_factor + dbs_tuners_ins.sampling_down_momentum;
