@@ -123,7 +123,7 @@ static struct s5pv210_dvs_conf dvs_conf[] = {
 	},
 	[L4] = {
 		.arm_volt   = 950000,
-		.int_volt   = 1000000,
+		.int_volt   = 1100000,
 	},
 };
 
