@@ -112,9 +112,12 @@ static unsigned int sleep_wakeup_freq;
 #define DEFAULT_SAMPLE_RATE_JIFFIES 2
 static unsigned int sample_rate_jiffies;
 
+#define DEF_SMOOTH_UI (0)
+static unsigned int smooth_ui;
 
 /*************** End of tunables ***************/
 
+extern unsigned int touch_state_val;
 
 static void (*pm_idle_old)(void);
 static atomic_t active_count = ATOMIC_INIT(0);
@@ -314,7 +317,7 @@ static void cpufreq_smartass_timer(unsigned long cpu)
 	// Scale up if load is above max or if there where no idle cycles since coming out of idle,
 	// additionally, if we are at or above the ideal_speed, verify we have been at this frequency
 	// for at least up_rate_us:
-	if (cpu_load > max_cpu_load || delta_idle == 0)
+	if ((smooth_ui && touch_state_val) || cpu_load > max_cpu_load || delta_idle == 0)
 	{
 		if (old_freq < policy->max &&
 			 (old_freq < this_smartass->ideal_speed || delta_idle == 0 ||
@@ -628,6 +631,23 @@ static ssize_t store_min_cpu_load(struct kobject *kobj, struct attribute *attr, 
 	return count;
 }
 
+static ssize_t show_smooth_ui(struct kobject *kobj, struct attribute *attr, char *buf)
+{
+	return sprintf(buf, "%u\n", smooth_ui);
+}
+
+static ssize_t store_smooth_ui(struct kobject *kobj, struct attribute *attr, const char *buf, size_t count)
+{
+	unsigned int input;
+	int ret;
+
+	ret = sscanf(buf, "%u", &input);
+	if (ret != 1)
+		return -EINVAL;
+	smooth_ui = !!input;
+	return count;
+}
+
 #define define_global_rw_attr(_name)		\
 static struct global_attr _name##_attr =	\
 	__ATTR(_name, 0644, show_##_name, store_##_name)
@@ -643,6 +663,7 @@ define_global_rw_attr(ramp_up_step);
 define_global_rw_attr(ramp_down_step);
 define_global_rw_attr(max_cpu_load);
 define_global_rw_attr(min_cpu_load);
+define_global_rw_attr(smooth_ui);
 
 static struct attribute * smartass_attributes[] = {
 	&debug_mask_attr.attr,
@@ -656,6 +677,7 @@ static struct attribute * smartass_attributes[] = {
 	&ramp_down_step_attr.attr,
 	&max_cpu_load_attr.attr,
 	&min_cpu_load_attr.attr,
+	&smooth_ui_attr.attr,
 	NULL,
 };
 
