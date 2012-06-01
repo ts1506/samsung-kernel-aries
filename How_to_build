@@ -1,0 +1,52 @@
+Prerequistics
+Basic knowledge of Linux and compiling is required to be able to build a kernel. We need a modern Linux box (preferably).
+
+First we need to setup a directory in which we will clone the kernel and initramfs repository. 
+In this guide we will setup them in /tmp but you can do it in any directory you want.
+
+mkdir /tmp/semaphore
+cd /tmp/semaphore
+
+Clone the basic kernel repository
+git clone https://github.com/stratosk/samsung-kernel-aries
+
+Clone the initramfs repository
+git clone https://github.com/stratosk/ics-ramdisk
+
+OK, first step done. We got the code. Now we have to do some preparation and compile it.
+I prefer to use a mini ugly script to compile the kernel and pack it.
+It's located in the root of the kernel tree (/tmp/semaphore/samsung-kernel-aries/sbuild.sh)
+
+Open this file with an editor of your choice (I prefer vi) and edit:
+1) The two lines with the 'make' command changing the CROSS_COMPILE= option. You need to set the path from the cross compiler toolchain. 
+I use the one that it's included in CM9 repository.
+2) The line starting with the 'find' command changing the destination directory of the modules location. This is into the initramfs directory.
+In our example it's /tmp/semaphore/ics-ramdisk/ics_combo/files/modules
+
+
+Configure the kernel:
+The Semaphore's kernel configuration is located in the file config_sema in the root kernel directory.
+So, we need to copy this file as .config:
+
+cp config_sema .config
+
+Then we run this command to run Linux kernel configuration utility:
+make CROSS_COMPILE=/kernels/semaphore_cap/android/android/system/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi- ARCH=arm menuconfig
+
+Go to 'General Setup' and we change the Initramfs source files to /tmp/semaphore/ics-ramdisk/ics_combo/
+We also need to change the next 2 options User ID and Group ID to whatever uid and gid we are logged in in the Linux box. In my case is 500,500.
+We exit and save the configuration.
+
+
+Now we are ready to build the kernel!
+
+We just run:
+./sbuild.sh
+
+wait few minutes (time depends on the machine) and hopefully the compilation will end.
+
+The script will produce 2 files.
+1) /tmp/semaphore/samsung-kernel-aries/arch/arm/boot/zImage 
+2) /tmp/semaphore/ics-ramdisk/cwm/Semaphore_ICS_1.2.0s.zip
+
+These are the 2 known files that you can flash via Heimdal or CWM respectively
