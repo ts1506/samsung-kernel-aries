@@ -1,5 +1,5 @@
 /*
- * Copyright (C)  20012 stratosk <stratosk@semaphore.gr>
+ * Copyright (C)  2012 stratosk <stratosk@semaphore.gr>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
