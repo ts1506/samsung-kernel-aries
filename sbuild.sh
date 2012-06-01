@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sema_ver="Semaphore_ICS_1.2.0s"
+sema_ver="Semaphore_ICS_1.2.2"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $sema_ver`
@@ -14,6 +14,10 @@ make CROSS_COMPILE=/kernels/semaphore_cap/android/android/system/prebuilt/linux-
 find /kernels/samsung-kernel-aries/ -name '*.ko' -exec cp -v {} /kernels/ics-ramdisk/ics_combo/files/modules \;
 
 make CROSS_COMPILE=/kernels/semaphore_cap/android/android/system/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi- ARCH=arm -j4 zImage
+
+cd arch/arm/boot
+tar cvf `echo $sema_ver`.tar zImage
+cd ../../../
 
 cp arch/arm/boot/zImage ../ics-ramdisk/cwm/boot.img
 
