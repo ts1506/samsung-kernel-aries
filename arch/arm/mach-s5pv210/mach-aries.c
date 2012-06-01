@@ -139,6 +139,15 @@ struct wifi_mem_prealloc {
 	unsigned long size;
 };
 
+bool req_recovery;
+EXPORT_SYMBOL(req_recovery);
+
+void request_recovery(void)
+{
+	__raw_writel(2, S5P_INFORM6);
+}
+EXPORT_SYMBOL(request_recovery);
+
 bool bigmem;
 EXPORT_SYMBOL(bigmem);
 
@@ -161,6 +170,9 @@ static int aries_notifier_call(struct notifier_block *this,
 				mode = REBOOT_MODE_NONE;
 		}
 	}
+	
+	if (req_recovery)
+		mode = 2;
 	
 	__raw_writel(mode, S5P_INFORM6);
 
