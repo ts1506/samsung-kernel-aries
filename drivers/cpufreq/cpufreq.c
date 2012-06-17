@@ -38,6 +38,8 @@ extern unsigned long get_cpuminfreq(void);
 extern unsigned long get_cpuL0freq(void);
 extern unsigned long get_cpuL1freq(void);
 
+static unsigned int policy_max_orig = 1000000;
+
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
  * level driver of CPUFreq support, and its spinlock. This lock
@@ -1859,6 +1861,7 @@ static void powersave_early_suspend(struct early_suspend *handler)
 		if (cpufreq_get_policy(&new_policy, cpu))
 			goto out;
 
+		policy_max_orig = new_policy.max;
 		new_policy.max = get_cpuL1freq();
 
 		__cpufreq_set_policy(cpu_policy, &new_policy);
@@ -1881,7 +1884,7 @@ static void powersave_late_resume(struct early_suspend *handler)
 		if (cpufreq_get_policy(&new_policy, cpu))
 			goto out;
 
-		new_policy.max = get_cpuL0freq();
+		new_policy.max = policy_max_orig;
 
 		__cpufreq_set_policy(cpu_policy, &new_policy);
 		cpu_policy->user_policy.max = cpu_policy->max;
