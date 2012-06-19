@@ -145,6 +145,7 @@ EXPORT_SYMBOL(req_recovery);
 void request_recovery(void)
 {
 	__raw_writel(2, S5P_INFORM6);
+	pr_info("%s: Recovery mode 2 requested\n", __func__);
 }
 EXPORT_SYMBOL(request_recovery);
 
