@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Linux/arm 3.0.8 Kernel Configuration
+# Linux/arm 3.0.17 Kernel Configuration
 #
 CONFIG_ARM=y
 CONFIG_HAVE_PWM=y
@@ -364,7 +364,7 @@ CONFIG_SAMSUNG_GALAXYS=y
 # CONFIG_SAMSUNG_FASCINATE is not set
 # CONFIG_SAMSUNG_EPIC is not set
 # CONFIG_S5P_BIGMEM is not set
-# CONFIG_S5P_HUGEMEM is not set
+CONFIG_S5P_HUGEMEM=y
 CONFIG_S5PV210_SETUP_FB=y
 CONFIG_S5P_ADC=y
 CONFIG_S5PV210_SETUP_FIMC0=y
@@ -1109,6 +1109,7 @@ CONFIG_BCMDHD=y
 CONFIG_BCMDHD_FW_PATH="/vendor/firmware/fw_bcmdhd.bin"
 CONFIG_BCMDHD_NVRAM_PATH="/vendor/firmware/nvram_net.txt"
 CONFIG_DHD_USE_STATIC_BUF=y
+CONFIG_BCMDHD_WIFI_PM=y
 # CONFIG_HOSTAP is not set
 # CONFIG_IWM is not set
 # CONFIG_LIBERTAS is not set
