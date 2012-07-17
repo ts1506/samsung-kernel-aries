@@ -1,5 +1,3 @@
-subdir-ccflags-y := -Os
-
 obj-$(CONFIG_PHONE_ARIES)	+= modemctl/
 obj-$(CONFIG_PHONE_ARIES)	+= onedram/
 obj-$(CONFIG_PHONE_ARIES)	+= svnet/
