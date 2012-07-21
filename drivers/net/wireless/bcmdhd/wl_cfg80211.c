@@ -298,8 +298,9 @@ static void wl_free_wdev(struct wl_priv *wl);
 
 static s32 wl_inform_bss(struct wl_priv *wl);
 static s32 wl_inform_single_bss(struct wl_priv *wl, struct wl_bss_info *bi);
-static s32 wl_inform_ibss(struct wl_priv *wl, struct net_device *dev, const u8 *bssid);
+static s32 wl_inform_ibss(struct wl_priv *wl, const u8 *bssid);
 static s32 wl_update_bss_info(struct wl_priv *wl, struct net_device *ndev);
+static chanspec_t wl_cfg80211_get_shared_freq(struct wiphy *wiphy);
 
 static s32 wl_add_keyext(struct wiphy *wiphy, struct net_device *dev,
 	u8 key_idx, const u8 *mac_addr,
@@ -1010,15 +1011,23 @@ wl_cfg80211_change_virtual_iface(struct wiphy *wiphy, struct net_device *ndev,
 	default:
 		return -EINVAL;
 	}
-
-	set_mode_by_netdev(wl, ndev, mode);
+	WL_DBG(("%s : ap (%d), infra (%d), iftype: (%d)\n", ndev->name, ap, infra, type));
 
 	if (ap) {
+		wl_set_mode_by_netdev(wl, ndev, mode);
 		if (wl->p2p_supported && wl->p2p->vif_created) {
 			WL_DBG(("p2p_vif_created (%d) p2p_on (%d)\n", wl->p2p->vif_created,
-			p2p_on(wl)));
-			chspec = wf_chspec_aton(WL_P2P_TEMP_CHAN);
-			wlif_type = ap ? WL_P2P_IF_GO : WL_P2P_IF_CLIENT;
+				p2p_on(wl)));
+			wldev_iovar_setint(ndev, "mpc", 0);
+			wl_notify_escan_complete(wl, ndev, true, true);
+
+			/* In concurrency case, STA may be already associated in a particular
+			 * channel. so retrieve the current channel of primary interface and
+			 * then start the virtual interface on that.
+			 */
+			chspec = wl_cfg80211_get_shared_freq(wiphy);
+
+			wlif_type = WL_P2P_IF_GO;
 			WL_ERR(("%s : ap (%d), infra (%d), iftype: (%d)\n",
 				ndev->name, ap, infra, type));
 			wl_set_p2p_status(wl, IF_CHANGING);
@@ -1043,12 +1052,13 @@ wl_cfg80211_change_virtual_iface(struct wiphy *wiphy, struct net_device *ndev,
 			return -EINVAL;
 		}
 	} else {
-		err = wldev_ioctl(ndev, WLC_SET_INFRA, &infra, sizeof(infra), true);
-		if (unlikely(err)) {
+		infra = htod32(infra);
+		err = wldev_ioctl(ndev, WLC_SET_INFRA, &infra, sizeof(s32), true);
+		if (err) {
 			WL_ERR(("WLC_SET_INFRA error (%d)\n", err));
-			return err;
+			return -EAGAIN;
 		}
-		WL_DBG(("set infra = %d", infra));
+		wl_set_mode_by_netdev(wl, ndev, mode);
 	}
 
 	ndev->ieee80211_ptr->iftype = type;
@@ -1569,8 +1579,7 @@ __wl_cfg80211_scan(struct wiphy *wiphy, struct net_device *ndev,
 	/* Arm scan timeout timer */
 	mod_timer(&wl->scan_timeout, jiffies + WL_SCAN_TIMER_INTERVAL_MS * HZ / 1000);
 	iscan_req = false;
-	spec_scan = false;
-	if (request && !wl_is_ibssmode(wl, ndev)) {		/* scan bss */
+	if (request) {		/* scan bss */
 		ssids = request->ssids;
 		if (wl->iscan_on && (!ssids || !ssids->ssid_len || request->n_ssids != 1)) {
 			iscan_req = true;
@@ -1821,150 +1830,153 @@ wl_cfg80211_join_ibss(struct wiphy *wiphy, struct net_device *dev,
 {
 	struct wl_priv *wl = wiphy_priv(wiphy);
 	struct wl_join_params join_params;
+	struct wlc_ssid ssid;
+	struct ether_addr bssid;
 	size_t join_params_size = 0;
-	s32 err = 0;
 	s32 wsec = 0;
 	s32 bcnprd;
-	s32 bssidx = wl_cfgp2p_find_idx(wl, dev);
+	s32 err = 0;
 
 	WL_TRACE(("In\n"));
 	CHECK_SYS_UP(wl);
 
+	/*
+	 * Cancel ongoing scan to sync up with sme state machine of cfg80211.
+	 */
+	if (wl->scan_request) {
+		wl_notify_escan_complete(wl, dev, true, true);
+	}
+	/* Clean BSSID */
+	bzero(&bssid, sizeof(bssid));
+	wl_update_prof(wl, dev, NULL, (void *)&bssid, WL_PROF_BSSID);
+
 	if (params->ssid)
-		WL_DBG(("SSID: %s\n", params->ssid));
+		WL_INFO(("SSID: %s\n", params->ssid));
 	else {
-		WL_DBG(("SSID: NULL, Not supported\n"));
-		return -EOPNOTSUPP;
+		WL_ERR(("SSID: NULL, Not supported\n"));
+		err = -EOPNOTSUPP;
+		goto CleanUp;
 	}
 
 	if (params->bssid)
-		WL_DBG(("BSSID: %02X %02X %02X %02X %02X %02X\n",
-		params->bssid[0], params->bssid[1], params->bssid[2],
-		params->bssid[3], params->bssid[4], params->bssid[5]));
-	else
-		WL_DBG(("No BSSID specified\n"));
+		WL_INFO(("BSSID: %02X:%02X:%02X:%02X:%02X:%02X\n",
+			params->bssid[0], params->bssid[1], params->bssid[2],
+			params->bssid[3], params->bssid[4], params->bssid[5]));
 
 	if (params->channel)
-		WL_DBG(("channel: %d\n", params->channel->center_freq));
-	else
-		WL_DBG(("no channel specified\n"));
+		WL_INFO(("channel: %d\n", params->channel->center_freq));
 
 	if (params->channel_fixed)
-		WL_DBG(("fixed channel required\n"));
-	else
-		WL_DBG(("no fixed channel required\n"));
+		WL_INFO(("fixed channel required\n"));
 
 	if (params->ie && params->ie_len)
-		WL_DBG(("ie len: %d\n", params->ie_len));
-	else
-		WL_DBG(("no ie specified\n"));
+		WL_INFO(("ie len: %d\n", params->ie_len));
 
 	if (params->beacon_interval)
-		WL_DBG(("beacon interval: %d\n", params->beacon_interval));
-	else
-		WL_DBG(("no beacon interval specified\n"));
+		WL_INFO(("beacon interval: %d\n", params->beacon_interval));
 
 	if (params->basic_rates)
-		WL_DBG(("basic rates: %08X\n", params->basic_rates));
-	else
-		WL_DBG(("no basic rates specified\n"));
+		WL_INFO(("basic rates: %08X\n", params->basic_rates));
 
 	if (params->privacy)
-		WL_DBG(("privacy required\n"));
-	else
-		WL_DBG(("no privacy required\n"));
+		WL_INFO(("privacy required\n"));
+
+	wl_set_drv_status(wl, CONNECTING, dev);
 
 	/* Configure Privacy for starter */
 	if (params->privacy)
 		wsec |= WEP_ENABLED;
 
-	/* set auth to open */
-	err = wldev_iovar_setint_bsscfg(dev, "auth", 0, bssidx);
-	if (err < 0) {
-		WL_ERR(("auth error %d\n", err));
-		return BCME_ERROR;
+	err = wldev_iovar_setint(dev, "wsec", wsec);
+	if (err) {
+		WL_ERR(("wsec failed (%d)\n", err));
+		goto CleanUp;
 	}
-	/* set wsec */
-	err = wldev_iovar_setint_bsscfg(dev, "wsec", wsec, bssidx);
-	if (err < 0) {
-		WL_ERR(("wsec error %d\n", err));
-		return BCME_ERROR;
+
+	err = wldev_iovar_setint(dev, "auth", WL_AUTH_OPEN_SYSTEM);
+	if (err) {
+		WL_ERR(("auth failed (%d)\n", err));
+		goto CleanUp;
 	}
-	/* set upper-layer auth */
-	err = wldev_iovar_setint_bsscfg(dev, "wpa_auth", 0, bssidx);
-	if (err < 0) {
-		WL_ERR(("wpa_auth error %d\n", err));
-		return BCME_ERROR;
+
+	err = wldev_iovar_setint(dev, "wpa_auth", 0);
+	if (err) {
+		WL_ERR(("wpa_auth failed (%d)\n", err));
+		goto CleanUp;
 	}
 
 	/* Configure Beacon Interval for starter */
 	if (params->beacon_interval)
-		bcnprd = htod32(params->beacon_interval);
+		bcnprd = params->beacon_interval;
 	else
-		bcnprd = htod32(100);
+		bcnprd = 100;
 
+	bcnprd = htod32(bcnprd);
 	err = wldev_ioctl(dev, WLC_SET_BCNPRD, &bcnprd, sizeof(bcnprd), true);
-	if (unlikely(err)) {
+	if (err) {
 		WL_ERR(("WLC_SET_BCNPRD failed (%d)\n", err));
-		goto done;
+		goto CleanUp;
 	}
 
 	/* Configure required join parameter */
-	memset(&join_params, 0, sizeof(wl_join_params_t));
+	memset(&join_params, 0, sizeof(struct wl_join_params));
 
 	/* SSID */
-	join_params.ssid.SSID_len =
-			(params->ssid_len > 32) ? 32 : params->ssid_len;
-	memcpy(join_params.ssid.SSID, params->ssid, join_params.ssid.SSID_len);
-	join_params.ssid.SSID_len = htod32(join_params.ssid.SSID_len);
+	memset(&ssid, 0, sizeof(struct wlc_ssid));
+	ssid.SSID_len = MIN(params->ssid_len, 32);
+	join_params.ssid.SSID_len = htod32(ssid.SSID_len);
+	memcpy(ssid.SSID, params->ssid, ssid.SSID_len);
+	memcpy(join_params.ssid.SSID, params->ssid, ssid.SSID_len);
 	join_params_size = sizeof(join_params.ssid);
-	wl_update_prof(wl, NULL, &join_params.ssid, WL_PROF_SSID);
+
+	wl_update_prof(wl, dev, NULL, &ssid, WL_PROF_SSID);
 
 	/* BSSID */
 	if (params->bssid) {
-		memcpy(&join_params.params.bssid, params->bssid, ETH_ALEN);
-		join_params_size =
-			sizeof(join_params.ssid) + WL_ASSOC_PARAMS_FIXED_SIZE;
+		memcpy(&join_params.params.bssid, params->bssid, ETHER_ADDR_LEN);
+		join_params_size = sizeof(join_params.ssid) +
+			WL_ASSOC_PARAMS_FIXED_SIZE;
+
+		wl_update_prof(wl, dev, NULL, params->bssid, WL_PROF_BSSID);
 	} else {
-		memcpy(&join_params.params.bssid, &ether_bcast, ETH_ALEN);
+		memcpy(&join_params.params.bssid, &ether_bcast, ETHER_ADDR_LEN);
 	}
-	wl_update_prof(wl, NULL, &join_params.params.bssid, WL_PROF_BSSID);
 
 	/* Channel */
 	if (params->channel) {
 		u32 target_channel;
 
-		wl->channel =
-			ieee80211_frequency_to_channel(
-				params->channel->center_freq);
+		target_channel = ieee80211_frequency_to_channel(
+							params->channel->center_freq);
 		if (params->channel_fixed) {
 			/* adding chanspec */
-			wl_ch_to_chanspec(wl->channel,
+			wl_ch_to_chanspec(target_channel,
 				&join_params, &join_params_size);
 		}
 
 		/* set channel for starter */
-		target_channel = htod32(wl->channel);
+		target_channel = htod32(target_channel);
 		err = wldev_ioctl(dev, WLC_SET_CHANNEL,
 			&target_channel, sizeof(target_channel), true);
-		if (unlikely(err)) {
+		if (err) {
 			WL_ERR(("WLC_SET_CHANNEL failed (%d)\n", err));
-			goto done;
+			goto CleanUp;
 		}
-	} else
-		wl->channel = 0;
+	}
 
 	wl->ibss_starter = false;
 
 	err = wldev_ioctl(dev, WLC_SET_SSID, &join_params, join_params_size, true);
-	if (unlikely(err)) {
+	if (err) {
 		WL_ERR(("WLC_SET_SSID failed (%d)\n", err));
-		goto done;
+		goto CleanUp;
 	}
 
-	wl_set_drv_status(wl, CONNECTING);
+CleanUp:
 
-done:
+	if (err)
+		wl_clr_drv_status(wl, CONNECTING, dev);
+
 	WL_TRACE(("Exit\n"));
 	return err;
 }
@@ -1972,11 +1984,37 @@ done:
 static s32 wl_cfg80211_leave_ibss(struct wiphy *wiphy, struct net_device *dev)
 {
 	struct wl_priv *wl = wiphy_priv(wiphy);
+	scb_val_t scbval;
+	bool act = false;
 	s32 err = 0;
+	u8 *curbssid;
+
+	WL_TRACE(("Enter\n"));
 
 	CHECK_SYS_UP(wl);
-	wl_link_down(wl);
+	act = *(bool *) wl_read_prof(wl, dev, WL_PROF_ACT);
+	curbssid = wl_read_prof(wl, dev, WL_PROF_BSSID);
+	if (act) {
+		/*
+		* Cancel ongoing scan to sync up with sme state machine of cfg80211.
+		*/
+		if (wl->scan_request) {
+			wl_notify_escan_complete(wl, dev, true, true);
+		}
+		wl_set_drv_status(wl, DISCONNECTING, dev);
+		scbval.val = DOT11_RC_DISASSOC_LEAVING;
+		memcpy(&scbval.ea, curbssid, ETHER_ADDR_LEN);
+		scbval.val = htod32(scbval.val);
+		err = wldev_ioctl(dev, WLC_DISASSOC, &scbval,
+				sizeof(scb_val_t), true);
+		if (unlikely(err)) {
+			wl_clr_drv_status(wl, DISCONNECTING, dev);
+			WL_ERR(("error (%d)\n", err));
+			return err;
+		}
+	}
 
+	WL_TRACE(("Exit\n"));
 	return err;
 }
 
@@ -2946,49 +2984,47 @@ wl_cfg80211_get_station(struct wiphy *wiphy, struct net_device *dev,
 			bcm_ether_ntoa((const struct ether_addr *)mac, eabuf), sinfo->inactive_time,
 			sta->idle * 1000));
 #endif
-	} else if (get_mode_by_netdev(wl, dev) == WL_MODE_BSS || wl_is_ibssmode(wl, dev)) {
-			u8 *curmacp = wl_read_prof(wl, WL_PROF_BSSID);
+	} else if (wl_get_mode_by_netdev(wl, dev) == WL_MODE_BSS) {
+		u8 *curmacp = wl_read_prof(wl, dev, WL_PROF_BSSID);
+		err = -ENODEV;
+		if (!wl_get_drv_status(wl, CONNECTED, dev) ||
+			(dhd_is_associated(dhd, NULL, &err) == FALSE)) {
+			WL_ERR(("NOT assoc: %d\n", err));
+			goto get_station_err;
+		}
+		if (memcmp(mac, curmacp, ETHER_ADDR_LEN)) {
+			WL_ERR(("Wrong Mac address: "MACSTR" != "MACSTR"\n",
+				MAC2STR(mac), MAC2STR(curmacp)));
+		}
 
-			if (!wl_get_drv_status(wl, CONNECTED) ||
-			    (dhd_is_associated(dhd, NULL) == FALSE)) {
-				WL_ERR(("NOT assoc\n"));
-				err = -ENODEV;
-				goto get_station_err;
-			}
-			if (memcmp(mac, curmacp, ETHER_ADDR_LEN)) {
-				WL_ERR(("Wrong Mac address: "MACSTR" != "MACSTR"\n",
-					MAC2STR(mac), MAC2STR(curmacp)));
-			}
+		/* Report the current tx rate */
+		err = wldev_ioctl(dev, WLC_GET_RATE, &rate, sizeof(rate), false);
+		if (err) {
+			WL_ERR(("Could not get rate (%d)\n", err));
+		} else {
+			rate = dtoh32(rate);
+			sinfo->filled |= STATION_INFO_TX_BITRATE;
+			sinfo->txrate.legacy = rate * 5;
+			WL_DBG(("Rate %d Mbps\n", (rate / 2)));
+		}
 
-			/* Report the current tx rate */
-			err = wldev_ioctl(dev, WLC_GET_RATE, &rate, sizeof(rate), false);
-			if (err) {
-				WL_ERR(("Could not get rate (%d)\n", err));
-			} else {
-				rate = dtoh32(rate);
-				sinfo->filled |= STATION_INFO_TX_BITRATE;
-				sinfo->txrate.legacy = rate * 5;
-				WL_DBG(("Rate %d Mbps\n", (rate / 2)));
-			}
-
-			memset(&scb_val, 0, sizeof(scb_val));
-			scb_val.val = 0;
-			err = wldev_ioctl(dev, WLC_GET_RSSI, &scb_val,
-					sizeof(scb_val_t), false);
-			if (err) {
-				WL_ERR(("Could not get rssi (%d)\n", err));
-				goto get_station_err;
-			}
-
-			rssi = dtoh32(scb_val.val);
-			sinfo->filled |= STATION_INFO_SIGNAL;
-			sinfo->signal = rssi;
-			WL_DBG(("RSSI %d dBm\n", rssi));
+		memset(&scb_val, 0, sizeof(scb_val));
+		scb_val.val = 0;
+		err = wldev_ioctl(dev, WLC_GET_RSSI, &scb_val,
+			sizeof(scb_val_t), false);
+		if (err) {
+			WL_ERR(("Could not get rssi (%d)\n", err));
+			goto get_station_err;
+		}
+		rssi = dtoh32(scb_val.val);
+		sinfo->filled |= STATION_INFO_SIGNAL;
+		sinfo->signal = rssi;
+		WL_DBG(("RSSI %d dBm\n", rssi));
 
 get_station_err:
-		if (err) {
+		if (err && (err != -ETIMEDOUT) && (err != -EIO)) {
 			/* Disconnect due to zero BSSID or error to get RSSI */
-			WL_ERR(("force cfg80211_disconnected\n"));
+			WL_ERR(("force cfg80211_disconnected: %d\n", err));
 			wl_clr_drv_status(wl, CONNECTED, dev);
 			cfg80211_disconnected(dev, 0, NULL, 0, GFP_KERNEL);
 			wl_link_down(wl);
@@ -4720,80 +4756,6 @@ static s32 wl_inform_single_bss(struct wl_priv *wl, struct wl_bss_info *bi)
 	return err;
 }
 
-static s32
-wl_inform_ibss(struct wl_priv *wl, struct net_device *dev, const u8 *bssid)
-{
-	struct wiphy *wiphy = wl_to_wiphy(wl);
-	struct ieee80211_channel *notify_channel;
-	struct wl_bss_info *bi = NULL;
-	struct ieee80211_supported_band *band;
-	u8 *buf = NULL;
-	s32 err = 0;
-	u16 channel;
-	u32 freq;
-	u64 notify_timestamp;
-	u16 notify_capability;
-	u16 notify_interval;
-	u8 *notify_ie;
-	size_t notify_ielen;
-	s32 notify_signal;
-
-	WL_TRACE(("In\n"));
-
-	buf = kzalloc(WL_BSS_INFO_MAX, GFP_KERNEL);
-	if (buf == NULL) {
-		WL_ERR(("kzalloc() failed\n"));
-		err = -ENOMEM;
-		goto CleanUp;
-	}
-
-	*(u32 *)buf = htod32(WL_BSS_INFO_MAX);
-
-	err = wldev_ioctl(dev, WLC_GET_BSS_INFO, buf, WL_BSS_INFO_MAX, false);
-	if (unlikely(err)) {
-		WL_ERR(("WLC_GET_BSS_INFO failed: %d\n", err));
-		goto CleanUp;
-	}
-
-	bi = (wl_bss_info_t *)(buf + 4);
-
-	channel = bi->ctl_ch ? bi->ctl_ch :
-				CHSPEC_CHANNEL(le16_to_cpu(bi->chanspec));
-
-	if (channel <= CH_MAX_2G_CHANNEL)
-		band = wiphy->bands[IEEE80211_BAND_2GHZ];
-	else
-		band = wiphy->bands[IEEE80211_BAND_5GHZ];
-
-	freq = ieee80211_channel_to_frequency(channel, band->band);
-	notify_channel = ieee80211_get_channel(wiphy, freq);
-
-	notify_timestamp = jiffies_to_msecs(jiffies)*1000; /* uSec */
-	notify_capability = le16_to_cpu(bi->capability);
-	notify_interval = le16_to_cpu(bi->beacon_period);
-	notify_ie = (u8 *)bi + le16_to_cpu(bi->ie_offset);
-	notify_ielen = le16_to_cpu(bi->ie_length);
-	notify_signal = (s16)le16_to_cpu(bi->RSSI) * 100;
-
-	WL_DBG(("channel: %d(%d)\n", channel, freq));
-	WL_DBG(("capability: %X\n", notify_capability));
-	WL_DBG(("beacon interval: %d\n", notify_interval));
-	WL_DBG(("signal: %d\n", notify_signal));
-	WL_DBG(("notify_timestamp: %#018llx\n", notify_timestamp));
-
-	cfg80211_inform_bss(wiphy, notify_channel, bssid,
-		notify_timestamp, notify_capability, notify_interval,
-		notify_ie, notify_ielen, notify_signal, GFP_KERNEL);
-
-CleanUp:
-
-	kfree(buf);
-
-	WL_TRACE(("Exit\n"));
-
-	return err;
-}
-
 static s32 wl_inform_ibss(struct wl_priv *wl, const u8 *bssid)
 {
 	struct net_device *ndev = wl_to_prmry_ndev(wl);
@@ -5087,36 +5049,38 @@ wl_notify_connect_status(struct wl_priv *wl, struct net_device *ndev,
 	bool act;
 	s32 err = 0;
 	u32 event = ntoh32(e->event_type);
+	u32 reason;
 
 	if (wl_get_mode_by_netdev(wl, ndev) == WL_MODE_AP) {
 		wl_notify_connect_status_ap(wl, ndev, e, data);
 	} else {
 		WL_DBG(("wl_notify_connect_status : event %d status : %d ndev %p\n",
 			ntoh32(e->event_type), ntoh32(e->status), ndev));
+		if((event == WLC_E_DEAUTH_IND) || (event == WLC_E_DISASSOC_IND)) {
+			reason = ntoh32(e->reason);
+			wl->deauth_reason = reason;
+			WL_ERR(("Received %s event with reason code: %d\n",
+			(event == WLC_E_DEAUTH_IND)?
+			"WLC_E_DEAUTH_IND":"WLC_E_DISASSOC_IND", reason));
+		}
 		if (wl_is_linkup(wl, e, ndev)) {
 			wl_link_up(wl);
 			act = true;
-			wl_update_prof(wl, e, &act, WL_PROF_ACT);
-			wl_update_prof(wl, NULL, (void *)(e->addr.octet), WL_PROF_BSSID);
+			wl_update_prof(wl, ndev, e, &act, WL_PROF_ACT);
+			wl_update_prof(wl, ndev, NULL, (void *)&e->addr, WL_PROF_BSSID);
+			wl->deauth_reason = 0;
 			if (wl_is_ibssmode(wl, ndev)) {
-				printk("cfg80211_ibss_joined\n");
-				wl_inform_ibss(wl, ndev, (s8 *)&e->addr);
-				cfg80211_ibss_joined(ndev, (s8 *)&e->addr,
-					GFP_KERNEL);
-				wl_clr_drv_status(wl, CONNECTING);
-				wl_set_drv_status(wl, CONNECTED);
-				WL_DBG(("joined in IBSS network\n"));
+				wl_ibss_join_done(wl, ndev, e, data, true);
+				WL_DBG(("wl_ibss_join_done succeeded\n"));
 			} else {
-				if (!wl_get_drv_status(wl, DISCONNECTING)) {
-					printk("wl_bss_connect_done succeeded status=(0x%x)\n",
-						(int)wl->status);
+				if (!wl_get_drv_status(wl, DISCONNECTING, ndev)) {
+					printk("wl_bss_connect_done succeeded\n");
 					wl_bss_connect_done(wl, ndev, e, data, true);
 					WL_DBG(("joined in BSS network \"%s\"\n",
 					((struct wlc_ssid *)
-					 wl_read_prof(wl, WL_PROF_SSID))->SSID));
+					 wl_read_prof(wl, ndev, WL_PROF_SSID))->SSID));
 				}
 			}
-
 		} else if (wl_is_linkdown(wl, e)) {
 			if (wl->scan_request) {
 				if (wl->escan_on) {
@@ -5163,18 +5127,15 @@ wl_notify_connect_status(struct wl_priv *wl, struct net_device *ndev,
 				event, (int)ntoh32(e->status));
 			/* Clean up any pending scan request */
 			if (wl->scan_request) {
-				del_timer_sync(&wl->scan_timeout);
 				if (wl->escan_on) {
-					wl_notify_escan_complete(wl, true);
-				} else
+					wl_notify_escan_complete(wl, ndev, true, true);
+				} else {
+					del_timer_sync(&wl->scan_timeout);
 					wl_iscan_aborted(wl);
+				}
 			}
-			if (wl_get_drv_status(wl, CONNECTING)) {
-				if (wl_is_ibssmode(wl, ndev))
-					wl_clr_drv_status(wl, CONNECTING);
-				else
-					wl_bss_connect_done(wl, ndev, e, data, false);
-			}
+			if (wl_get_drv_status(wl, CONNECTING, ndev))
+				wl_bss_connect_done(wl, ndev, e, data, false);
 		} else {
 			printk("%s nothing\n", __FUNCTION__);
 		}

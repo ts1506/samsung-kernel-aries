@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #sema_ver="Semaphore_ICS_1.2.7s"
-sema_ver="Semaphore_JB_2.0.0"
+sema_ver="Semaphore_JB_2.0.0a1"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $sema_ver`
