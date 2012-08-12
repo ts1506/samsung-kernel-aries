@@ -58,6 +58,7 @@
 static unsigned int min_sampling_rate;
 static unsigned int orig_sampling_rate;
 static unsigned int orig_sampling_down_factor;
+static unsigned int orig_io_is_busy;
 static unsigned int orig_sampling_down_max_momentum;
 
 extern unsigned int touch_state_val;
@@ -301,6 +302,7 @@ static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
 	if (ret != 1)
 		return -EINVAL;
 	dbs_tuners_ins.io_is_busy = !!input;
+	orig_io_is_busy = dbs_tuners_ins.io_is_busy;
 	return count;
 }
 
@@ -727,19 +729,19 @@ static int should_io_be_busy(void)
 	    boot_cpu_data.x86_model >= 15)
 		return 1;
 #endif
-	return 0;
+	return 1;
 }
 
 static void powersave_early_suspend(struct early_suspend *handler)
 {
-	//dbs_tuners_ins.io_is_busy = 0;
+	dbs_tuners_ins.io_is_busy = 0;
 	dbs_tuners_ins.sampling_down_max_momentum = 0;
 	dbs_tuners_ins.sampling_rate *= 4;
 }
 
 static void powersave_late_resume(struct early_suspend *handler)
 {
-	//dbs_tuners_ins.io_is_busy = 1;
+	dbs_tuners_ins.io_is_busy = orig_io_is_busy;
 	dbs_tuners_ins.sampling_down_max_momentum = orig_sampling_down_max_momentum;
 	dbs_tuners_ins.sampling_rate = orig_sampling_rate;
 }
@@ -812,6 +814,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 			orig_sampling_down_factor = dbs_tuners_ins.sampling_down_factor;
 			orig_sampling_down_max_momentum = dbs_tuners_ins.sampling_down_max_momentum;
 			dbs_tuners_ins.io_is_busy = should_io_be_busy();
+			orig_io_is_busy = dbs_tuners_ins.io_is_busy;
 		}
 		mutex_unlock(&dbs_mutex);
 
