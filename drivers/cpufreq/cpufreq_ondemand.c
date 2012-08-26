@@ -729,7 +729,7 @@ static int should_io_be_busy(void)
 	    boot_cpu_data.x86_model >= 15)
 		return 1;
 #endif
-	return 1;
+	return 0;
 }
 
 static void powersave_early_suspend(struct early_suspend *handler)
