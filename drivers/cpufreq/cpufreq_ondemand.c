@@ -331,7 +331,8 @@ static ssize_t store_sampling_down_factor(struct kobject *a,
 	if (ret != 1 || input > MAX_SAMPLING_DOWN_FACTOR || input < 1)
 		return -EINVAL;
 	dbs_tuners_ins.sampling_down_factor = input;
-
+	orig_sampling_down_factor = dbs_tuners_ins.sampling_down_factor;
+	
 	/* Reset down sampling multiplier in case it was active */
 	for_each_online_cpu(j) {
 		struct cpu_dbs_info_s *dbs_info;
