@@ -35,6 +35,11 @@ export LOCALVERSION="-"`echo $SEMA_VER`
 export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.08-20120827_linux/bin/arm-linux-gnueabihf-
 export ARCH=arm
 
+echo 
+echo "Making ""semaphore"_$VARIANT"_defconfig"
+
+make "semaphore"_$VARIANT"_defconfig"
+
 eval $(grep CONFIG_INITRAMFS_SOURCE .config)
 INIT_DIR=$CONFIG_INITRAMFS_SOURCE
 MODULES_DIR=`echo $INIT_DIR`files/modules
@@ -50,11 +55,6 @@ echo "MODULES_DIR="$MODULES_DIR
 echo "KERNEL_DIR="$KERNEL_DIR
 echo "OUTPUT_DIR="$OUTPUT_DIR
 echo "CWM_DIR="$CWM_DIR
-
-echo 
-echo "Making ""semaphore"_$VARIANT"_defconfig"
-
-make "semaphore"_$VARIANT"_defconfig"
 
 if [ "$2" = "s" ] ; then
         echo "CONFIG_S5P_HUGEMEM=y" >> .config
