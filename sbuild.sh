@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.1.2"
+BASE_SEMA_VER="Semaphore_JB_2.2.0"
 
 case "$1" in
         galaxys)
@@ -32,7 +32,7 @@ SEMA_VER=$BASE_SEMA_VER$VER
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $SEMA_VER`
 #export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.07-20120720_linux/bin/arm-linux-gnueabihf-
-export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.08-20120827_linux/bin/arm-linux-gnueabihf-
+export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.09-20120921_linux/bin/arm-linux-gnueabihf-
 export ARCH=arm
 
 echo 
