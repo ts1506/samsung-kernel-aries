@@ -34,6 +34,8 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/cpufreq_interactive.h>
 
+extern int sched_setscheduler_nocheck(struct task_struct *, int,
+				      const struct sched_param *);
 static atomic_t active_count = ATOMIC_INIT(0);
 
 struct cpufreq_interactive_cpuinfo {
