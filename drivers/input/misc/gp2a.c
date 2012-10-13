@@ -353,6 +353,9 @@ static enum hrtimer_restart gp2a_timer_func(struct hrtimer *timer)
 	return HRTIMER_RESTART;
 }
 
+int proximity_val;
+EXPORT_SYMBOL(proximity_val);
+
 /* interrupt happened due to transition/change of near/far proximity state */
 irqreturn_t gp2a_irq_handler(int irq, void *data)
 {
@@ -384,6 +387,8 @@ irqreturn_t gp2a_irq_handler(int irq, void *data)
 	}*/
 #endif
 	/* 0 is close, 1 is far */
+	proximity_val = val;
+	
 	input_report_abs(ip->proximity_input_dev, ABS_DISTANCE, val);
 	input_sync(ip->proximity_input_dev);
 	wake_lock_timeout(&ip->prx_wake_lock, 3*HZ);

@@ -525,6 +525,8 @@ static void dhd_set_packet_filter(int value, dhd_pub_t *dhd)
 #endif
 }
 
+extern int proximity_val;
+
 #ifdef CONFIG_BCMDHD_WIFI_PM
 static int wifi_pm = 0;
 /* /sys/module/bcmdhd/parameters/wifi_pm */
@@ -542,11 +544,11 @@ static int dhd_set_suspend(int value, dhd_pub_t *dhd)
 		__FUNCTION__, value, dhd->in_suspend));
 	
 #ifdef CONFIG_BCMDHD_WIFI_PM
-	if (wifi_pm == 1) {
+	if (wifi_pm == 1 || !proximity_val) {
 		power_mode = PM_FAST;
-		DHD_ERROR(("%s: PM_FAST\n", __FUNCTION__));
+		DHD_ERROR(("%s: PM_FAST, proximity_val: %u \n", __FUNCTION__, proximity_val));
 	} else
-		DHD_ERROR(("%s: PM_MAX \n", __FUNCTION__));
+		DHD_ERROR(("%s: PM_MAX, proximity_val: %u \n", __FUNCTION__, proximity_val));
 #endif
 	dhd_suspend_lock(dhd);
 	if (dhd && dhd->up) {
