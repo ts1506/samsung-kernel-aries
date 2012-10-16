@@ -70,13 +70,13 @@ make -j4 zImage
 
 cd arch/arm/boot
 tar cvf `echo $SEMA_VER`.tar zImage
-mv `echo $SEMA_VER`.tar $OUTPUT_DIR$VARIANT
+mv `echo $SEMA_VER`.tar ../../../$OUTPUT_DIR$VARIANT
 echo "Moving to "$OUTPUT_DIR$VARIANT"/"
 cd ../../../
 
 cp arch/arm/boot/zImage $CWM_DIR"boot.img"
 cd $CWM_DIR
 zip -r `echo $SEMA_VER`.zip *
-mv  `echo $SEMA_VER`.zip $OUTPUT_DIR$VARIANT"/"
+mv  `echo $SEMA_VER`.zip ../$OUTPUT_DIR$VARIANT"/"
 
 
