@@ -31,8 +31,8 @@ SEMA_VER=$BASE_SEMA_VER$VER
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $SEMA_VER`
-#export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.07-20120720_linux/bin/arm-linux-gnueabihf-
-export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.09-20120921_linux/bin/arm-linux-gnueabihf-
+#export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.09-20120921_linux/bin/arm-linux-gnueabihf-
+export CROSS_COMPILE=../toolchain/arm-linux-gnueabihf-
 export ARCH=arm
 
 echo 
@@ -44,8 +44,8 @@ eval $(grep CONFIG_INITRAMFS_SOURCE .config)
 INIT_DIR=$CONFIG_INITRAMFS_SOURCE
 MODULES_DIR=`echo $INIT_DIR`files/modules
 KERNEL_DIR=`pwd`
-OUTPUT_DIR=/kernels/output/
-CWM_DIR=/kernels/ics-ramdisk/cwm/
+OUTPUT_DIR=../output/
+CWM_DIR=../ics-ramdisk/cwm/
 
 echo "LOCALVERSION="$LOCALVERSION
 echo "CROSS_COMPILE="$CROSS_COMPILE
