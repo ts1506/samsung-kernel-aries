@@ -1,4 +1,4 @@
-Prerequistics
+Prerequisites
 Basic knowledge of Linux and compiling is required to be able to build a kernel. We need a modern Linux box (preferably).
 
 First we need to setup a directory in which we will clone the kernel and initramfs repository. 
