@@ -53,10 +53,25 @@ tar zxvf jb_combo.tar.gz
 tar zxvf jb_combo_c.tar.gz
 tar zxvf jb_combo_v.tar.gz
 
+3. Kernel configuration
+
+I use 3 files to keep kernel's configuration for each variant.
+The files are placed in arch/arm/configs directory and they are named:
+
+semaphore_galaxys_defconfig
+semaphore_captivate_defconfig
+semaphore_vibrant_defconfig
+
+When, you will run the build script, the proper configuration will be used
+according to the selected variant (please see next section).
+If you need any change kernel configuration, you have to edit these files
+before the building procedure. 
+Leave these files unchanged, if you want Semaphore's default settings.
+
 You are ready to build!
 
 
-3. Building the kernel
+4. Building the kernel
 
 I create a script that automates the building procedure. The script can accept
 2 arguments: 
