@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.4.0"
+BASE_SEMA_VER="Semaphore_JB_2.4.3"
 
 case "$1" in
         galaxys)
@@ -37,6 +37,8 @@ export ARCH=arm
 
 echo 
 echo "Making ""semaphore"_$VARIANT"_defconfig"
+
+DATE_START=$(date +"%s")
 
 make "semaphore"_$VARIANT"_defconfig"
 
@@ -79,4 +81,7 @@ cd $CWM_DIR
 zip -r `echo $SEMA_VER`.zip *
 mv  `echo $SEMA_VER`.zip ../$OUTPUT_DIR$VARIANT"/"
 
-
+DATE_END=$(date +"%s")
+echo
+DIFF=$(($DATE_END - $DATE_START))
+echo "Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds."
