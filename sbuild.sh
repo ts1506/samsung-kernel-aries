@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.8.0b4"
+BASE_SEMA_VER="Semaphore_JB_2.8.0"
 
 case "$1" in
         galaxys)
@@ -67,6 +67,7 @@ make -j8 modules
 
 rm `echo $MODULES_DIR"/*"`
 find $KERNEL_DIR -name '*.ko' -exec cp -v {} $MODULES_DIR \;
+chmod 644 `echo $MODULES_DIR"/*"`
 
 make -j8 zImage
 
