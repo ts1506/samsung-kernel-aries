@@ -380,6 +380,7 @@ static int bma023_input_init(struct bma023_data *bma023)
 		return -ENOMEM;
 	dev->name = "accelerometer_sensor";
 	dev->id.bustype = BUS_I2C;
+	dev->id.product = 7; 
 
 	input_set_capability(dev, EV_REL, REL_RY);
 	input_set_capability(dev, EV_REL, REL_X);

@@ -628,5 +628,10 @@ config GENERIC_BLN
          Say Y here to enable the backlight notification
          for android led-notification (modified liblight needed)
 
+config SAI
+       tristate "SAI support"
+       default y
+       help
+         Say Y here to enable the SAI service
 
 endif # MISC_DEVICES
