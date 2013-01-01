@@ -1,9 +1,9 @@
 /*  SAI driver
  *  for Samsung Galaxy S I9000
- *  
+ *
  *   Copyright (c) 2012-2013 stratosk@semaphore.gr
- *   
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
@@ -11,7 +11,7 @@
 
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/workqueue.h>	
+#include <linux/workqueue.h>
 #include <linux/sched.h>
 #include <linux/delay.h>
 #include <linux/miscdevice.h>
@@ -21,17 +21,17 @@
 #include <linux/slab.h>
 
 
-/*	
+/*
  *	horizontal screen up 0, 0, 255
  *	horizantal screen down 0, 0, -255
  *	right side up 255, 0 ,0
  *	right side down -255, 0 ,0
  *	top side up 0, 255, 0
  *	top side down 0, -255 ,0
- 
+
 	pickup left ear 50,220,0
 	pickup right ear -80, 230, 20
-	
+
 	Range -512 to 511
  */
 struct acceleration {
@@ -86,17 +86,17 @@ static void sai_input_event(struct input_handle *handle,
 		return;
 	dev->name = "accelerometer_sensor";
 	dev->id.bustype = BUS_I2C;
-		
+
 	if (handle->dev->name) {
 		pr_info("%s: %s\n", __func__, handle->dev->name);
 		if (strcmp(handle->dev->name, "accelerometer_sensor") == 0)
 			pr_info("%s: accelerometer_sensor\n", __func__);
-		else   
+		else
 			pr_info("%s: something else\n", __func__);
 	} else
 		pr_info("%s: device name null\n", __func__);
-	*/	
-		
+	*/
+
 	if (type == EV_REL) {
 		if (code == REL_X) {
 			old_accel.x = accel.x;
@@ -109,7 +109,7 @@ static void sai_input_event(struct input_handle *handle,
 			accel.z = value;
 		}
 	}
-	
+
 	if (type == EV_SYN && code == SYN_REPORT) {
 		pr_info("%s: %i,%i,%i\n", __func__, accel.x, accel.y, accel.z);
 		sai_analyze();
@@ -169,7 +169,8 @@ static const struct input_device_id sai_ids[] = {
 				INPUT_DEVICE_ID_MATCH_RELBIT |
 				INPUT_DEVICE_ID_MATCH_PRODUCT,
 		.evbit = { BIT_MASK(EV_REL) },
-		.relbit = { BIT_MASK(REL_X) | BIT_MASK(REL_Y) | BIT_MASK(REL_Z) },
+		.relbit = { BIT_MASK(REL_X) | BIT_MASK(REL_Y)
+					    | BIT_MASK(REL_Z) },
 		.product = 7,
 	},
 	{ },
@@ -189,7 +190,7 @@ static int sai_init(void)
 	sai_wq = alloc_workqueue("ksai", 0, 1);
 	if (!sai_wq)
 		goto err;
-	INIT_WORK(&inputopen.inputopen_work, sai_input_open);	
+	INIT_WORK(&inputopen.inputopen_work, sai_input_open);
 	rc = input_register_handler(&sai_input_handler);
 	if (rc)
 		pr_warn("%s: failed to register input handler\n",
