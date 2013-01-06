@@ -1919,7 +1919,6 @@ err_null_driver:
 }
 EXPORT_SYMBOL_GPL(cpufreq_register_driver);
 
-
 /**
  * cpufreq_unregister_driver - unregister the current CPUFreq driver
  *
