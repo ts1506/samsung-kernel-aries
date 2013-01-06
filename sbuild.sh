@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.9.0"
+BASE_SEMA_VER="Semaphore_JB_2.9.2"
 
 case "$1" in
         galaxys)
@@ -63,13 +63,13 @@ if [ "$2" = "s" ] ; then
 fi
 
 
-make -j8 modules
+make -j16 modules
 
 rm `echo $MODULES_DIR"/*"`
 find $KERNEL_DIR -name '*.ko' -exec cp -v {} $MODULES_DIR \;
 chmod 644 `echo $MODULES_DIR"/*"`
 
-make -j8 zImage
+make -j16 zImage
 
 cd arch/arm/boot
 tar cvf `echo $SEMA_VER`.tar zImage
