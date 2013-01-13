@@ -19,7 +19,8 @@
 #include <linux/earlysuspend.h>
 #include <linux/input.h>
 #include <linux/slab.h>
-
+#include <linux/list.h>
+#include <linux/vmalloc.h>
 
 /*
  *	horizontal screen up 0, 0, 255
@@ -34,29 +35,14 @@
 
 	Range -512 to 511
  */
-struct acceleration {
+struct accel_list {
 	short x;
 	short y;
 	short z;
-};
+	struct list_head list;
+} accel;
 
-static struct acceleration accel = {
-	.x = 0,
-	.y = 0,
-	.z = 0
-};
-
-static struct acceleration old_accel = {
-	.x = 0,
-	.y = 0,
-	.z = 0
-};
-
-static struct acceleration daccel = {
-	.x = 0,
-	.y = 0,
-	.z = 0
-};
+struct accel_list *head;
 
 struct sai_inputopen {
 	struct input_handle *handle;
@@ -68,11 +54,24 @@ static struct sai_inputopen inputopen;
 
 static void sai_analyze(void)
 {
-	daccel.x = accel.x - old_accel.x;
+	struct accel_list *tmp;
+	struct list_head *pos;
+	int i = 1;
+
+	pr_info("%s: head: %i,%i,%i\n", __func__, head->x, head->y, head->z);
+	pos = &(head->list);
+	head = list_entry(pos->next, struct accel_list, list);
+	pr_info("%s: move head: %i,%i,%i\n", __func__, head->x, head->y, head->z);
+	list_for_each(pos, &accel.list) {
+		tmp = list_entry(pos, struct accel_list, list);
+		pr_info("%s: %u: %i,%i,%i\n", __func__, i, tmp->x, tmp->y, tmp->z);
+		i++;		
+	}
+/*	daccel.x = accel.x - old_accel.x;
 	daccel.y = accel.y - old_accel.y;
 	daccel.z = accel.z - old_accel.z;
 	pr_info("%s: %i,%i,%i\n", __func__, daccel.x, daccel.y, daccel.z);
-	return;
+*/	return;
 }
 
 static void sai_input_event(struct input_handle *handle,
@@ -99,19 +98,16 @@ static void sai_input_event(struct input_handle *handle,
 
 	if (type == EV_REL) {
 		if (code == REL_X) {
-			old_accel.x = accel.x;
-			accel.x = value;
+			head->x = value;
 		} else if (code == REL_Y) {
-			old_accel.y = accel.y;
-			accel.y = value;
+			head->y = value;
 		} else if (code == REL_Z) {
-			old_accel.z = accel.z;
-			accel.z = value;
+			head->z = value;
 		}
 	}
 
 	if (type == EV_SYN && code == SYN_REPORT) {
-		pr_info("%s: %i,%i,%i\n", __func__, accel.x, accel.y, accel.z);
+		pr_info("%s: %i,%i,%i\n", __func__, head->x, head->y, head->z);
 		sai_analyze();
 	}
 }
@@ -187,6 +183,17 @@ static struct input_handler sai_input_handler = {
 static int sai_init(void)
 {
 	int rc;
+	int i;
+	struct accel_list *tmp;
+
+	INIT_LIST_HEAD(&accel.list);
+	for (i = 5; i != 0; i--) {
+		tmp = (struct accel_list *)vmalloc(sizeof(struct accel_list));
+
+		list_add(&(tmp->list), &(accel.list));
+		head = tmp;
+	}	
+
 	sai_wq = alloc_workqueue("ksai", 0, 1);
 	if (!sai_wq)
 		goto err;
