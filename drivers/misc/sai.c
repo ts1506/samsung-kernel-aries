@@ -8,7 +8,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-
+#define DEBUG
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/workqueue.h>
@@ -35,14 +35,23 @@
 
 	Range -512 to 511
  */
-struct accel_list {
+
+#define ACCEL_LIST_SIZE	5
+
+struct accel {
 	short x;
 	short y;
 	short z;
 	struct list_head list;
-} accel;
+};
 
-struct accel_list *head;
+LIST_HEAD(accels);
+
+struct acceleration {
+	short x;
+	short y;
+	short z;
+} accel_buf;
 
 struct sai_inputopen {
 	struct input_handle *handle;
@@ -54,60 +63,48 @@ static struct sai_inputopen inputopen;
 
 static void sai_analyze(void)
 {
-	struct accel_list *tmp;
-	struct list_head *pos;
+	struct accel *tmp;
 	int i = 1;
 
-	pr_info("%s: head: %i,%i,%i\n", __func__, head->x, head->y, head->z);
-	pos = &(head->list);
-	head = list_entry(pos->next, struct accel_list, list);
-	pr_info("%s: move head: %i,%i,%i\n", __func__, head->x, head->y, head->z);
-	list_for_each(pos, &accel.list) {
-		tmp = list_entry(pos, struct accel_list, list);
-		pr_info("%s: %u: %i,%i,%i\n", __func__, i, tmp->x, tmp->y, tmp->z);
-		i++;		
+	tmp = list_entry(accels.prev, struct accel, list);
+	pr_debug("%s: head before: %i,%i,%i\n", __func__, tmp->x, tmp->y,
+								  tmp->z);
+	tmp->x = accel_buf.x;
+	tmp->y = accel_buf.y;
+	tmp->z = accel_buf.z;
+	pr_debug("%s: head: %i,%i,%i\n", __func__, tmp->x, tmp->y, tmp->z);
+
+	list_for_each_entry_reverse(tmp, &accels, list) {
+		pr_debug("%s: %u: %i,%i,%i\n", __func__, i, tmp->x, tmp->y,
+								    tmp->z);
+		i++;
 	}
-/*	daccel.x = accel.x - old_accel.x;
-	daccel.y = accel.y - old_accel.y;
-	daccel.z = accel.z - old_accel.z;
-	pr_info("%s: %i,%i,%i\n", __func__, daccel.x, daccel.y, daccel.z);
-*/	return;
+
+	/* Rotate the list to move the head to next element*/
+	list_rotate_left(&accels);
+	tmp = list_entry(accels.prev, struct accel, list);
+	pr_debug("%s: move head: %i,%i,%i\n", __func__, tmp->x, tmp->y, tmp->z);
+
+	return;
 }
 
 static void sai_input_event(struct input_handle *handle,
 					    unsigned int type,
 					    unsigned int code, int value)
 {
-	/*struct input_dev *dev = handle->private;
-	if (!handle)
-		return;
-	if (handle->dev.name != "accelerometer_sensor")
-		return;
-	dev->name = "accelerometer_sensor";
-	dev->id.bustype = BUS_I2C;
-
-	if (handle->dev->name) {
-		pr_info("%s: %s\n", __func__, handle->dev->name);
-		if (strcmp(handle->dev->name, "accelerometer_sensor") == 0)
-			pr_info("%s: accelerometer_sensor\n", __func__);
-		else
-			pr_info("%s: something else\n", __func__);
-	} else
-		pr_info("%s: device name null\n", __func__);
-	*/
-
 	if (type == EV_REL) {
 		if (code == REL_X) {
-			head->x = value;
+			accel_buf.x = value;
 		} else if (code == REL_Y) {
-			head->y = value;
+			accel_buf.y = value;
 		} else if (code == REL_Z) {
-			head->z = value;
+			accel_buf.z = value;
 		}
 	}
 
 	if (type == EV_SYN && code == SYN_REPORT) {
-		pr_info("%s: %i,%i,%i\n", __func__, head->x, head->y, head->z);
+		pr_debug("%s: %i,%i,%i\n", __func__, accel_buf.x, accel_buf.y,
+								accel_buf.z);
 		sai_analyze();
 	}
 }
@@ -184,15 +181,13 @@ static int sai_init(void)
 {
 	int rc;
 	int i;
-	struct accel_list *tmp;
+	struct accel *tmp;
 
-	INIT_LIST_HEAD(&accel.list);
-	for (i = 5; i != 0; i--) {
-		tmp = (struct accel_list *)vmalloc(sizeof(struct accel_list));
-
-		list_add(&(tmp->list), &(accel.list));
-		head = tmp;
-	}	
+	for (i = ACCEL_LIST_SIZE; i != 0; i--) {
+		tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
+		tmp->x = tmp->y = tmp->z = i;
+		list_add_tail(&(tmp->list), &accels);
+	}
 
 	sai_wq = alloc_workqueue("ksai", 0, 1);
 	if (!sai_wq)
@@ -212,8 +207,16 @@ err:
 
 static void sai_exit(void)
 {
+	struct accel *tmp, *next;
+
 	input_unregister_handler(&sai_input_handler);
 	destroy_workqueue(sai_wq);
+
+	list_for_each_entry_safe(tmp, next, &accels, list) {
+		list_del(&(tmp->list));
+		kfree(tmp);
+	}
+
 	printk(KERN_INFO "SAI disabled\n");
 }
 
