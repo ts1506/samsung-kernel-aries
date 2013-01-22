@@ -8,7 +8,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-#define DEBUG
+//#define DEBUG
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/workqueue.h>
@@ -34,9 +34,15 @@
 	pickup right ear -80, 230, 20
 
 	Range -512 to 511
+
+	horizontal screen up, accelerating towards down -
+	horizontal screen up, accelerating towards up +
  */
 
 #define ACCEL_LIST_SIZE	5
+#define ALPHA		6		/* between 1 - 9 */
+#define BETA		10 - ALPHA
+#define THRES		40
 
 struct accel {
 	short x;
@@ -51,7 +57,7 @@ struct acceleration {
 	short x;
 	short y;
 	short z;
-} accel_buf;
+} accel_buf, grav;
 
 struct sai_inputopen {
 	struct input_handle *handle;
@@ -63,27 +69,68 @@ static struct sai_inputopen inputopen;
 
 static void sai_analyze(void)
 {
-	struct accel *tmp;
+	struct accel *curr, *previous;
+	struct acceleration filt;
+#ifdef DEBUG
 	int i = 1;
+#endif
 
-	tmp = list_entry(accels.prev, struct accel, list);
-	pr_debug("%s: head before: %i,%i,%i\n", __func__, tmp->x, tmp->y,
-								  tmp->z);
-	tmp->x = accel_buf.x;
-	tmp->y = accel_buf.y;
-	tmp->z = accel_buf.z;
-	pr_debug("%s: head: %i,%i,%i\n", __func__, tmp->x, tmp->y, tmp->z);
+	/* Save the current measurement to the last node */
+	curr = list_entry(accels.prev, struct accel, list);
+	pr_debug("%s: before update current: %i,%i,%i\n", __func__, curr->x, 
+							curr->y, curr->z);
+	curr->x = accel_buf.x;
+	curr->y = accel_buf.y;
+	curr->z = accel_buf.z;
+	pr_debug("%s: after update current: %i,%i,%i\n", __func__, curr->x, 
+							curr->y, curr->z);
+	
+	/* Retrieve the previous measurement */
+	previous = list_entry((curr->list).prev, struct accel, list);
+	pr_debug("%s: previous: %i,%i,%i\n", __func__, previous->x,
+						previous->y, previous->z);
 
-	list_for_each_entry_reverse(tmp, &accels, list) {
-		pr_debug("%s: %u: %i,%i,%i\n", __func__, i, tmp->x, tmp->y,
-								    tmp->z);
+	/* Calculate the gravity using a low pass filter */
+	grav.x = (6 * grav.x) / 10 + (4 * previous->x) / 10;
+	grav.y = (6 * grav.y) / 10 + (4 * previous->y) / 10;
+	grav.z = (6 * grav.z) / 10 + (4 * previous->z) / 10;
+	pr_debug("%s: gravity: %i,%i,%i\n", __func__, grav.x, grav.y, grav.z);
+	
+	/* Remove the gravity from the current to get filtered results */
+	filt.x = curr->x - grav.x;
+	filt.y = curr->y - grav.y;
+	filt.z = curr->z - grav.z;
+	pr_debug("%s: filtered: %i,%i,%i\n", __func__, filt.x, filt.y, filt.z);
+	
+	if (filt.x > THRES)
+		pr_info("%s: move: %s", __func__, "left");
+	if (filt.x < -THRES)
+                pr_info("%s: move: %s", __func__, "right");
+	if (filt.y > THRES)
+                pr_info("%s: move: %s", __func__, "backward");
+	if (filt.y < -THRES)
+                pr_info("%s: move: %s", __func__, "forward");
+	if (filt.z > THRES)
+                pr_info("%s: move: %s", __func__, "down");
+	if (filt.z < -THRES)
+                pr_info("%s: move: %s", __func__, "up");
+
+#ifdef DEBUG
+	/* Print the list */
+	list_for_each_entry_reverse(curr, &accels, list) {
+		pr_debug("%s: %u: %i,%i,%i\n", __func__, i, curr->x, 
+						curr->y, curr->z);
 		i++;
 	}
+#endif
 
 	/* Rotate the list to move the head to next element*/
 	list_rotate_left(&accels);
-	tmp = list_entry(accels.prev, struct accel, list);
-	pr_debug("%s: move head: %i,%i,%i\n", __func__, tmp->x, tmp->y, tmp->z);
+#ifdef DEBUG
+	curr = list_entry(accels.prev, struct accel, list);
+	pr_debug("%s: move head: %i,%i,%i\n", __func__, curr->x, curr->y, 
+								    curr->z);
+#endif
 
 	return;
 }
@@ -104,7 +151,7 @@ static void sai_input_event(struct input_handle *handle,
 
 	if (type == EV_SYN && code == SYN_REPORT) {
 		pr_debug("%s: %i,%i,%i\n", __func__, accel_buf.x, accel_buf.y,
-								accel_buf.z);
+								  accel_buf.z);
 		sai_analyze();
 	}
 }
@@ -164,6 +211,7 @@ static const struct input_device_id sai_ids[] = {
 		.evbit = { BIT_MASK(EV_REL) },
 		.relbit = { BIT_MASK(REL_X) | BIT_MASK(REL_Y)
 					    | BIT_MASK(REL_Z) },
+		/* Use this value randomly to distinquish the device */
 		.product = 7,
 	},
 	{ },
