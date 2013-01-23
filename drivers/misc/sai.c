@@ -39,10 +39,22 @@
 	horizontal screen up, accelerating towards up +
  */
 
-#define ACCEL_LIST_SIZE	5
-#define ALPHA		6		/* between 1 - 9 */
-#define BETA		10 - ALPHA
-#define THRES		40
+#define ACCEL_LIST_SIZE	(5)
+#define DEF_ALPHA	(6)		/* between 1 - 9 */
+#define DEF_THRES	(40)
+#define NORM		(10)
+
+static struct sai_tuners {
+	short alpha;
+	short beta;
+	short thres;
+	short norm;
+} sai_tun = {
+	.alpha 	= DEF_ALPHA,
+	.beta 	= NORM - DEF_ALPHA,
+	.thres 	= DEF_THRES,
+	.norm	= NORM,
+};
 
 struct accel {
 	short x;
@@ -91,9 +103,12 @@ static void sai_analyze(void)
 						previous->y, previous->z);
 
 	/* Calculate the gravity using a low pass filter */
-	grav.x = (6 * grav.x) / 10 + (4 * previous->x) / 10;
-	grav.y = (6 * grav.y) / 10 + (4 * previous->y) / 10;
-	grav.z = (6 * grav.z) / 10 + (4 * previous->z) / 10;
+	grav.x = ((sai_tun.alpha * grav.x) + (sai_tun.beta * previous->x))
+								/ sai_tun.norm;
+	grav.y = ((sai_tun.alpha * grav.y) + (sai_tun.beta * previous->y))
+								/ sai_tun.norm;
+	grav.z = ((sai_tun.alpha * grav.z) + (sai_tun.beta * previous->z))
+								/ sai_tun.norm;
 	pr_debug("%s: gravity: %i,%i,%i\n", __func__, grav.x, grav.y, grav.z);
 	
 	/* Remove the gravity from the current to get filtered results */
@@ -102,17 +117,17 @@ static void sai_analyze(void)
 	filt.z = curr->z - grav.z;
 	pr_debug("%s: filtered: %i,%i,%i\n", __func__, filt.x, filt.y, filt.z);
 	
-	if (filt.x > THRES)
+	if (filt.x > sai_tun.thres)
 		pr_info("%s: move: %s", __func__, "left");
-	if (filt.x < -THRES)
+	if (filt.x < -sai_tun.thres)
                 pr_info("%s: move: %s", __func__, "right");
-	if (filt.y > THRES)
+	if (filt.y > sai_tun.thres)
                 pr_info("%s: move: %s", __func__, "backward");
-	if (filt.y < -THRES)
+	if (filt.y < -sai_tun.thres)
                 pr_info("%s: move: %s", __func__, "forward");
-	if (filt.z > THRES)
+	if (filt.z > sai_tun.thres)
                 pr_info("%s: move: %s", __func__, "down");
-	if (filt.z < -THRES)
+	if (filt.z < -sai_tun.thres)
                 pr_info("%s: move: %s", __func__, "up");
 
 #ifdef DEBUG
@@ -225,12 +240,86 @@ static struct input_handler sai_input_handler = {
 	.id_table       = sai_ids,
 };
 
+/*sysfs interface */
+static ssize_t show_alpha(struct device *dev, struct device_attribute *attr,
+								char *buf)
+{
+	return sprintf(buf, "%u\n", sai_tun.alpha);
+}
+
+static ssize_t store_alpha(struct device *dev, struct device_attribute *attr,
+						const char *buf, size_t size)
+{
+	unsigned int input;
+	int ret;
+
+	ret = sscanf(buf, "%uh", &input);
+	if (ret != 1 || input < 1 || input > 9)
+		return -EINVAL;
+
+	sai_tun.alpha = input;
+	sai_tun.beta = sai_tun.norm - sai_tun.alpha;
+
+	return size;
+}
+
+static ssize_t show_thres(struct device *dev, struct device_attribute *attr,
+								char *buf)
+{
+	return sprintf(buf, "%u\n", sai_tun.thres);
+}
+
+ 
+static ssize_t store_thres(struct device *dev, struct device_attribute *attr,
+						const char *buf, size_t size)
+{
+	unsigned int input;
+	int ret;
+
+	ret = sscanf(buf, "%uh", &input);
+	if (ret != 1 || input < 1 || input > 100) 
+		return -EINVAL;
+
+	sai_tun.thres = input;
+
+	return size;
+}
+
+static DEVICE_ATTR(alpha, S_IRUGO | S_IWUGO , show_alpha, store_alpha);
+static DEVICE_ATTR(thres, S_IRUGO | S_IWUGO , show_thres, store_thres);
+ 
+static struct attribute *sai_attributes[] = {
+	&dev_attr_alpha.attr,
+	&dev_attr_thres.attr,
+	NULL
+};
+
+static struct attribute_group sai_group = {
+	.attrs  = sai_attributes,
+};
+
+static struct miscdevice sai_device = {
+	.minor = MISC_DYNAMIC_MINOR,
+	.name = "sai",
+};
+
+/* sysfs end */
+
 static int sai_init(void)
 {
 	int rc;
 	int i;
 	struct accel *tmp;
 
+	misc_register(&sai_device);
+	if (sysfs_create_group(&sai_device.this_device->kobj, &sai_group) < 0) {
+		pr_err("%s sysfs_create_group fail\n", __func__);
+		pr_err("Failed to create sysfs group for device (%s)!\n", 
+							sai_device.name);
+					
+		goto err;
+	}  
+  
 	for (i = ACCEL_LIST_SIZE; i != 0; i--) {
 		tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
 		tmp->x = tmp->y = tmp->z = i;
@@ -257,6 +346,8 @@ static void sai_exit(void)
 {
 	struct accel *tmp, *next;
 
+	misc_deregister(&sai_device);
+	
 	input_unregister_handler(&sai_input_handler);
 	destroy_workqueue(sai_wq);
 
