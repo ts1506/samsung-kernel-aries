@@ -246,7 +246,7 @@ static struct miscdevice sema_autobr_device = {
 
 /************************** sysfs end ************************/
 
-static void step_update(void)
+static inline void step_update(void)
 {
 	int ret;
 
