@@ -38,7 +38,29 @@
 #include <linux/rcupdate.h>
 #include <linux/profile.h>
 #include <linux/notifier.h>
-#include "lowmemorykiller.h"
+
+#define DEF_DEBUG_LEVEL		(2)
+#define DEF_LOWMEM_SIZE		(4)
+#define LOWMEM_ARRAY_SIZE	(6)
+
+#define lowmem_print(level, x...)			\
+	do {						\
+		if (lowmem_debug_level >= (level))	\
+			printk(x);			\
+	} while (0)
+
+enum lowmem_scan_t {
+	LMK_SCAN_OK,
+	LMK_SCAN_CONTINUE,
+	LMK_SCAN_ABORT,
+};
+
+/* Selected task struct */
+struct selected_struct {
+	struct	task_struct *task;
+	int	tasksize;
+	short	oom_score_adj;
+};
 
 static short lowmem_adj[LOWMEM_ARRAY_SIZE] = {
 	0,
