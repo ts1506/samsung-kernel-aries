@@ -141,7 +141,8 @@ static struct dbs_tuners {
 	.sampling_down_max_mom = DEF_SAMPLING_DOWN_MAX_MOMENTUM,
 	.sampling_down_mom_sens =
 		DEF_SAMPLING_DOWN_MOMENTUM_SENSITIVITY,
-	.down_diff = DEF_FREQUENCY_UP_THRESHOLD - DEF_FREQUENCY_DOWN_DIFFERENTIAL,
+	.down_diff = DEF_FREQUENCY_UP_THRESHOLD -
+		     DEF_FREQUENCY_DOWN_DIFFERENTIAL,
 	.ignore_nice = 0,
 	.powersave_bias = 0,
 	.smooth_ui = DEF_SMOOTH_UI,
