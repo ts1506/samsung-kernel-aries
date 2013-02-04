@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.9.8"
+BASE_SEMA_VER="Semaphore_JB_2.9.9"
 
 case "$1" in
         galaxys)
@@ -61,6 +61,7 @@ echo "CWM_DIR="$CWM_DIR
 if [ "$2" = "s" ] ; then
         echo "CONFIG_S5P_HUGEMEM=y" >> .config
 fi
+
 
 
 make -j16 modules
