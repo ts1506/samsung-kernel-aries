@@ -692,8 +692,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 	/* Calculate momentum and update sampling down factor */
 
-	if (this_dbs_info->momentum_adder > 0) {
-		this_dbs_info->momentum_adder--;
+	if (this_dbs_info->momentum_adder > 1) {
+		this_dbs_info->momentum_adder -= 2;
 		dbs_tuners_ins.sampling_down_momentum =
 			(this_dbs_info->momentum_adder *
 			 dbs_tuners_ins.sampling_down_max_mom) /
