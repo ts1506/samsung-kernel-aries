@@ -285,13 +285,11 @@ show_one(io_is_busy, io_is_busy);
 show_one(up_threshold, up_threshold);
 show_one(sampling_down_factor, sampling_down_factor);
 show_one(sampling_down_max_momentum, sampling_down_max_mom);
-show_one(sampling_down_momentum_sensitivity,
-		sampling_down_mom_sens);
+show_one(sampling_down_momentum_sensitivity, sampling_down_mom_sens);
 show_one(ignore_nice_load, ignore_nice);
 show_one(powersave_bias, powersave_bias);
 show_one(smooth_ui, smooth_ui);
 show_one(boostpulse, boosted);
-show_one(boosttime, freq_boost_time);
 show_one(boostfreq, boostfreq);
 
 static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
