@@ -122,7 +122,7 @@ static DEFINE_MUTEX(dbs_mutex);
 static struct dbs_tuners {
 	unsigned int sampling_rate;
 	unsigned int up_threshold;
-	unsigned int down_differential;
+	unsigned int down_diff;
 	unsigned int ignore_nice;
 	unsigned int sampling_down_factor;
 	unsigned int sampling_down_momentum;
@@ -141,7 +141,7 @@ static struct dbs_tuners {
 	.sampling_down_max_mom = DEF_SAMPLING_DOWN_MAX_MOMENTUM,
 	.sampling_down_mom_sens =
 		DEF_SAMPLING_DOWN_MOMENTUM_SENSITIVITY,
-	.down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
+	.down_diff = DEF_FREQUENCY_UP_THRESHOLD - DEF_FREQUENCY_DOWN_DIFFERENTIAL,
 	.ignore_nice = 0,
 	.powersave_bias = 0,
 	.smooth_ui = DEF_SMOOTH_UI,
@@ -332,6 +332,10 @@ static ssize_t store_up_threshold(struct kobject *a, struct attribute *b,
 			input < MIN_FREQUENCY_UP_THRESHOLD) {
 		return -EINVAL;
 	}
+	/* calculate the new down_diff */
+	dbs_tuners_ins.down_diff += input;
+	dbs_tuners_ins.down_diff -= dbs_tuners_ins.up_threshold;
+
 	dbs_tuners_ins.up_threshold = input;
 	return count;
 }
@@ -711,13 +715,9 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	 * can support the current CPU usage without triggering the up
 	 * policy. To be safe, we focus 10 points under the threshold.
 	 */
-	if (max_load_freq <
-	    (dbs_tuners_ins.up_threshold - dbs_tuners_ins.down_differential) *
-	     policy->cur) {
+	if (max_load_freq < dbs_tuners_ins.down_diff * policy->cur) {
 		unsigned int freq_next;
-		freq_next = max_load_freq /
-				(dbs_tuners_ins.up_threshold -
-				 dbs_tuners_ins.down_differential);
+		freq_next = max_load_freq / dbs_tuners_ins.down_diff;
 
 		if (dbs_tuners_ins.boosted &&
 				freq_next < boostfreq) {
@@ -954,8 +954,8 @@ static int __init cpufreq_gov_dbs_init(void)
 	if (idle_time != -1ULL) {
 		/* Idle micro accounting is supported. Use finer thresholds */
 		dbs_tuners_ins.up_threshold = MICRO_FREQUENCY_UP_THRESHOLD;
-		dbs_tuners_ins.down_differential =
-					MICRO_FREQUENCY_DOWN_DIFFERENTIAL;
+		dbs_tuners_ins.down_diff = MICRO_FREQUENCY_UP_THRESHOLD -
+					   MICRO_FREQUENCY_DOWN_DIFFERENTIAL;
 		/*
 		 * In no_hz/micro accounting case we set the minimum frequency
 		 * not depending on HZ, but fixed (very low). The deferred
