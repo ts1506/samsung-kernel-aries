@@ -27,6 +27,8 @@
 #define DEF_MAX_LUX			(2900)
 #define DEF_EFFECT_DELAY_MS		(0)
 #define DEF_BLOCK_FW			(1)
+#define DEF_ALPHA			(8)	/* between 1 - 9 */
+#define NORM				(10)
 
 #define SAMPLE_PERIOD 400000 /* Check every 400000us */
 
@@ -45,12 +47,15 @@
  * block_fw: block framework brighness updates
  */
 static struct sema_ab_tuners {
-	unsigned int min_brightness;
-	unsigned int max_brightness;
-	unsigned int instant_upd_threshold;
-	unsigned int max_lux;
-	int effect_delay_ms;
-	unsigned int block_fw;
+	unsigned short min_brightness;
+	unsigned short max_brightness;
+	unsigned short instant_upd_threshold;
+	unsigned short max_lux;
+	short effect_delay_ms;
+	unsigned short block_fw;
+	unsigned short alpha;
+	unsigned short beta;
+	unsigned short norm;
 } sa_tuners = {
 	.min_brightness = DEF_MIN_BRIGHTNESS,
 	.max_brightness = DEF_MAX_BRIGHTNESS,
@@ -58,6 +63,9 @@ static struct sema_ab_tuners {
 	.max_lux = DEF_MAX_LUX,
 	.effect_delay_ms = DEF_EFFECT_DELAY_MS,
 	.block_fw = DEF_BLOCK_FW,
+	.alpha  = DEF_ALPHA,
+	.beta   = NORM - DEF_ALPHA,
+	.norm   = NORM,
 };
 
 static void autobr_handler(struct work_struct *w);
@@ -69,6 +77,7 @@ static struct sema_ab_info {
 	unsigned int sum_update_br;	/* the sum of samples */
 	unsigned int cnt;
 	unsigned int delay;
+	unsigned int old_br;
 } sa_info;
 
 /************************** sysfs interface ************************/
@@ -88,10 +97,10 @@ static ssize_t show_min_brightness(struct device *dev,
 static ssize_t store_min_brightness(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
-	unsigned int input;
+	unsigned short input;
 	int ret;
 
-	ret = sscanf(buf, "%u", &input);
+	ret = sscanf(buf, "%hu", &input);
 	if (ret != 1 || input < 1 || input > DRV_MAX_BRIGHTNESS ||
 		input > sa_tuners.max_brightness)
 		return -EINVAL;
@@ -110,10 +119,10 @@ static ssize_t show_max_brightness(struct device *dev,
 static ssize_t store_max_brightness(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
-	unsigned int input;
+	unsigned short input;
 	int ret;
 
-	ret = sscanf(buf, "%u", &input);
+	ret = sscanf(buf, "%hu", &input);
 	if (ret != 1 || input < 1 || input > DRV_MAX_BRIGHTNESS ||
 		input < sa_tuners.min_brightness)
 		return -EINVAL;
@@ -132,10 +141,10 @@ static ssize_t show_instant_upd_threshold(struct device *dev,
 static ssize_t store_instant_upd_threshold(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
-	unsigned int input;
+	unsigned short input;
 	int ret;
 
-	ret = sscanf(buf, "%u", &input);
+	ret = sscanf(buf, "%hu", &input);
 	if (ret != 1 || input < 1 || input > DRV_MAX_UPD_THRESHOLD)
 		return -EINVAL;
 
@@ -153,10 +162,10 @@ static ssize_t show_max_lux(struct device *dev, struct device_attribute *attr,
 static ssize_t store_max_lux(struct device *dev, struct device_attribute *attr,
 						const char *buf, size_t size)
 {
-	unsigned int input;
+	unsigned short input;
 	int ret;
 
-	ret = sscanf(buf, "%u", &input);
+	ret = sscanf(buf, "%hu", &input);
 	if (ret != 1 || input < 1 || input > DRV_MAX_LUX)
 		return -EINVAL;
 
@@ -174,10 +183,10 @@ static ssize_t show_effect_delay_ms(struct device *dev,
 static ssize_t store_effect_delay_ms(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
-	int input;
+	short input;
 	int ret;
 
-	ret = sscanf(buf, "%i", &input);
+	ret = sscanf(buf, "%hi", &input);
 	if (ret != 1 || input < -1 || input > DRV_MAX_EFFECT_DELAY)
 		return -EINVAL;
 
@@ -195,10 +204,10 @@ static ssize_t show_block_fw(struct device *dev, struct device_attribute *attr,
 static ssize_t store_block_fw(struct device *dev, struct device_attribute *attr,
 						const char *buf, size_t size)
 {
-	unsigned int input;
+	unsigned short input;
 	int ret;
 
-	ret = sscanf(buf, "%u", &input);
+	ret = sscanf(buf, "%hu", &input);
 	if (ret != 1 || input > 1)
 		return -EINVAL;
 
@@ -299,6 +308,17 @@ static void autobr_handler(struct work_struct *w)
 
 	/* Get the average after 5 samples and only then adjust the brightness*/
 	sa_info.update_br = sa_info.sum_update_br / 5;
+	pr_debug("%s: update_br: %u", __func__, sa_info.update_br);
+	pr_debug("%s: old_br: %u", __func__, sa_info.old_br);
+
+	sa_info.update_br = ((sa_tuners.alpha * sa_info.update_br) +
+			     (sa_tuners.beta * sa_info.old_br)) /
+			      sa_tuners.norm;
+	sa_info.old_br = sa_info.update_br;
+	pr_debug("%s: filtered update_br: %u", __func__, sa_info.update_br);
+
+	pr_debug("%s: update_br: %u, current_br: %u", __func__,
+		 sa_info.update_br, sa_info.current_br);
 
 	/* cap the update brightness within the limits */
 	if (sa_info.update_br < sa_tuners.min_brightness)
@@ -318,6 +338,8 @@ static void autobr_handler(struct work_struct *w)
 		instant_update();
 	} else
 		sa_info.current_br = sa_info.update_br;
+
+	pr_debug("%s: after current_br: %u", __func__, sa_info.current_br);
 
 	/* reset counters */
 	sa_info.sum_update_br = 0;
@@ -355,6 +377,7 @@ static int autobr_init(void)
 
 	/* initial values */
 	sa_info.current_br = 120;
+	sa_info.old_br = 0;
 	sa_info.cnt = 0;
 	sa_info.delay = usecs_to_jiffies(SAMPLE_PERIOD);
 
