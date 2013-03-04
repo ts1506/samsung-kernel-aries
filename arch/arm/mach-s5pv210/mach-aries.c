@@ -107,9 +107,6 @@
 
 #include "aries.h"
 
-#undef pr_debug
-#define pr_debug pr_info
-
 struct class *sec_class;
 EXPORT_SYMBOL(sec_class);
 
@@ -2930,7 +2927,7 @@ static struct sec_jack_buttons_zone sec_jack_buttons_zones[] = {
 
 static int sec_jack_get_adc_value(void)
 {
-    pr_info("%s: sec_jack adc value = %i \n", __func__, s3c_adc_get_adc_data(3));
+	pr_debug("%s: sec_jack adc value = %i \n", __func__, s3c_adc_get_adc_data(3));
 	return s3c_adc_get_adc_data(3);
 }
 
