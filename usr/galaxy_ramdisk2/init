@@ -107,14 +107,6 @@ if busybox grep -q 1 /sys/class/power_supply/battery/charging_mode_booting ; the
 	busybox rm /init.aries.rc
 fi
 
-busybox echo "debug output:"
-busybox echo "current /:"
-busybox ls -l /
-busybox echo "current /system:"
-busybox ls -l /system/
-#busybox echo "current /cache:"
-#busybox ls -l /cache/
-
 busybox echo "cleaning up..."
 busybox umount /data
 busybox umount /sys

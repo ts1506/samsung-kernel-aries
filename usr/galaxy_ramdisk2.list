@@ -56,7 +56,6 @@ dir /cwm/res 755 0 0
 dir /cwm/res/images 755 0 0
 dir /cwm/res/images/charger 755 0 0
 dir /cwm/sbin 755 0 0
-dir /cwm/tmp 755 0 0
 dir /twrp 755 0 0
 dir /twrp/etc 755 0 0
 dir /twrp/res 755 0 0
@@ -330,8 +329,6 @@ file /cwm/sbin/xargs source/usr/galaxy_ramdisk2/cwm/sbin/xargs 755 0 0
 file /cwm/sbin/xzcat source/usr/galaxy_ramdisk2/cwm/sbin/xzcat 755 0 0
 file /cwm/sbin/yes source/usr/galaxy_ramdisk2/cwm/sbin/yes 755 0 0
 file /cwm/sbin/zcat source/usr/galaxy_ramdisk2/cwm/sbin/zcat 755 0 0
-file /cwm/tmp/aromafm.zip source/usr/galaxy_ramdisk2/cwm/tmp/aromafm.zip 755 0 0
-file /cwm/tmp/aromafm.zip.cfg source/usr/galaxy_ramdisk2/cwm/tmp/aromafm.zip.cfg 755 0 0
 file /cwm/ueventd.aries.rc source/usr/galaxy_ramdisk2/cwm/ueventd.aries.rc 755 0 0
 file /cwm/ueventd.goldfish.rc source/usr/galaxy_ramdisk2/cwm/ueventd.goldfish.rc 755 0 0
 file /cwm/ueventd.rc source/usr/galaxy_ramdisk2/cwm/ueventd.rc 755 0 0
