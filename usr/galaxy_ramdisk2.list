@@ -1,0 +1,657 @@
+
+#####################
+# .
+# Last modified: 1303434626.6776324710
+
+dir /dev 755 0 0
+dir /dev/block 755 0 0
+nod /dev/block/mmcblk0 644 0 0 b 179 0
+nod /dev/block/mmcblk0p1 644 0 0 b 179 1
+nod /dev/block/mmcblk0p2 644 0 0 b 179 2
+nod /dev/block/mtdblock0 644 0 0 b 31 0
+nod /dev/block/mtdblock4 644 0 0 b 31 4
+nod /dev/block/mtdblock6 644 0 0 b 31 6
+nod /dev/block/mtdblock2 644 0 0 b 31 2
+nod /dev/block/mtdblock3 644 0 0 b 31 3
+nod /dev/block/mtdblock5 644 1001 1001 b 31 5
+nod /dev/block/mtdblock7 644 0 0 b 31 7
+nod /dev/block/mtdblock1 644 0 0 b 31 1
+dir /dev/mtd 755 0 0
+nod /dev/mtd/mtd4 644 0 0 c 90 8
+nod /dev/mtd/mtd0 644 0 0 c 90 0
+nod /dev/mtd/mtd0ro 644 0 0 c 90 1
+nod /dev/mtd/mtd3 644 0 0 c 90 6
+nod /dev/mtd/mtd7 644 0 0 c 90 14
+nod /dev/mtd/mtd1 644 0 0 c 90 2
+nod /dev/mtd/mtd3ro 644 0 0 c 90 7
+nod /dev/mtd/mtd5ro 644 1001 1001 c 90 11
+nod /dev/mtd/mtd1ro 644 0 0 c 90 3
+nod /dev/mtd/mtd5 644 0 0 c 90 10
+nod /dev/mtd/mtd6ro 644 0 0 c 90 13
+nod /dev/mtd/mtd6 644 0 0 c 90 12
+nod /dev/mtd/mtd7ro 644 0 0 c 90 15
+nod /dev/mtd/mtd2 644 0 0 c 90 4
+nod /dev/mtd/mtd4ro 644 0 0 c 90 9
+nod /dev/mtd/mtd2ro 644 0 0 c 90 5
+nod /dev/urandom 644 0 0 c 1 9
+slink /init /stage1/init 777 0 0
+dir /proc 755 0 0
+dir /system 755 0 0
+dir /cache 755 0 0
+dir /sdcard 755 0 0
+dir /stage1 755 0 0
+dir /sys 755 0 0
+dir /hw 755 0 0
+dir /lvm 755 0 0
+dir /lvm/etc 755 0 0
+dir /lvm/sbin 755 0 0
+dir /rom_boot 755 0 0
+dir /rom_boot/res 755 0 0
+dir /rom_boot/res/images 755 0 0
+dir /rom_boot/res/images/charger 755 0 0
+dir /rom_boot/sbin 755 0 0
+dir /cwm 755 0 0
+dir /cwm/etc 755 0 0
+dir /cwm/res 755 0 0
+dir /cwm/res/images 755 0 0
+dir /cwm/res/images/charger 755 0 0
+dir /cwm/sbin 755 0 0
+dir /twrp 755 0 0
+dir /twrp/etc 755 0 0
+dir /twrp/res 755 0 0
+dir /twrp/res/fonts 755 0 0
+dir /twrp/res/images 755 0 0
+dir /twrp/res/images/charger 755 0 0
+dir /twrp/sbin 755 0 0
+dir /twrp/supersu 755 0 0
+#basefiles
+file /stage1/busybox source/usr/galaxy_ramdisk2/busybox 755 0 0
+file /stage1/init source/usr/galaxy_ramdisk2/init 755 0 0
+file /stage1/erase_image source/usr/galaxy_ramdisk2/erase_image 755 0 0
+file /hw/lights.aries.so.bln source/usr/galaxy_ramdisk2/hw/lights.aries.so.bln 755 0 0
+file /hw/lights.aries.so.cm source/usr/galaxy_ramdisk2/hw/lights.aries.so.cm 755 0 0
+file /lvm/etc/lvm.conf source/usr/galaxy_ramdisk2/lvm/etc/lvm.conf 755 0 0
+file /lvm/sbin/lvm source/usr/galaxy_ramdisk2/lvm/sbin/lvm 755 0 0
+#ramdisk
+file /rom_boot/charger source/usr/galaxy_ramdisk2/rom_boot/charger 755 0 0
+file /rom_boot/default.prop source/usr/galaxy_ramdisk2/rom_boot/default.prop 755 0 0
+file /rom_boot/fstab.aries source/usr/galaxy_ramdisk2/rom_boot/fstab.aries 755 0 0
+file /rom_boot/init source/usr/galaxy_ramdisk2/rom_boot/init 755 0 0
+file /rom_boot/init.aries.rc source/usr/galaxy_ramdisk2/rom_boot/init.aries.rc 755 0 0
+file /rom_boot/init.aries.gps.rc source/usr/galaxy_ramdisk2/rom_boot/init.aries.gps.rc 755 0 0
+file /rom_boot/init.aries.usb.rc source/usr/galaxy_ramdisk2/rom_boot/init.aries.usb.rc 755 0 0
+file /rom_boot/init.cm.rc source/usr/galaxy_ramdisk2/rom_boot/init.cm.rc 755 0 0
+file /rom_boot/init.goldfish.rc source/usr/galaxy_ramdisk2/rom_boot/init.goldfish.rc 755 0 0
+file /rom_boot/init.rc source/usr/galaxy_ramdisk2/rom_boot/init.rc 755 0 0
+file /rom_boot/init.trace.rc source/usr/galaxy_ramdisk2/rom_boot/init.trace.rc 755 0 0
+file /rom_boot/init.usb.rc source/usr/galaxy_ramdisk2/rom_boot/init.usb.rc 755 0 0
+file /rom_boot/lpm.rc source/usr/galaxy_ramdisk2/rom_boot/lpm.rc 755 0 0
+file /rom_boot/res/images/charger/battery_0.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_0.png 755 0 0
+file /rom_boot/res/images/charger/battery_1.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_1.png 755 0 0
+file /rom_boot/res/images/charger/battery_2.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_2.png 755 0 0
+file /rom_boot/res/images/charger/battery_3.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_3.png 755 0 0
+file /rom_boot/res/images/charger/battery_4.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_4.png 755 0 0
+file /rom_boot/res/images/charger/battery_5.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_5.png 755 0 0
+file /rom_boot/res/images/charger/battery_charge.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_charge.png 755 0 0
+file /rom_boot/res/images/charger/battery_fail.png source/usr/galaxy_ramdisk2/rom_boot/res/images/charger/battery_fail.png 755 0 0
+file /rom_boot/sbin/adbd source/usr/galaxy_ramdisk2/rom_boot/sbin/adbd 755 0 0
+file /rom_boot/sbin/setupdatadata.sh source/usr/galaxy_ramdisk2/rom_boot/sbin/setupdatadata.sh 755 0 0
+file /rom_boot/sbin/ueventd source/usr/galaxy_ramdisk2/rom_boot/sbin/ueventd 755 0 0
+file /rom_boot/sbin/watchdogd source/usr/galaxy_ramdisk2/rom_boot/sbin/watchdogd 755 0 0
+file /rom_boot/ueventd.aries.rc source/usr/galaxy_ramdisk2/rom_boot/ueventd.aries.rc 755 0 0
+file /rom_boot/ueventd.goldfish.rc source/usr/galaxy_ramdisk2/rom_boot/ueventd.goldfish.rc 755 0 0
+file /rom_boot/ueventd.rc source/usr/galaxy_ramdisk2/rom_boot/ueventd.rc 755 0 0
+#cwm recovery
+file /cwm/charger source/usr/galaxy_ramdisk2/cwm/charger 755 0 0
+file /cwm/default.prop source/usr/galaxy_ramdisk2/cwm/default.prop 755 0 0
+file /cwm/etc/recovery.fstab source/usr/galaxy_ramdisk2/cwm/etc/recovery.fstab 755 0 0
+file /cwm/fstab.aries source/usr/galaxy_ramdisk2/cwm/fstab.aries 755 0 0
+file /cwm/init source/usr/galaxy_ramdisk2/cwm/init 755 0 0
+file /cwm/init.rc source/usr/galaxy_ramdisk2/cwm/init.rc 755 0 0
+file /cwm/lpm.rc source/usr/galaxy_ramdisk2/cwm/lpm.rc 755 0 0
+file /cwm/res/images/charger/battery_0.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_0.png 755 0 0
+file /cwm/res/images/charger/battery_1.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_1.png 755 0 0
+file /cwm/res/images/charger/battery_2.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_2.png 755 0 0
+file /cwm/res/images/charger/battery_3.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_3.png 755 0 0
+file /cwm/res/images/charger/battery_4.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_4.png 755 0 0
+file /cwm/res/images/charger/battery_5.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_5.png 755 0 0
+file /cwm/res/images/charger/battery_charge.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_charge.png 755 0 0
+file /cwm/res/images/charger/battery_fail.png source/usr/galaxy_ramdisk2/cwm/res/images/charger/battery_fail.png 755 0 0
+file /cwm/res/images/icon_clockwork.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_clockwork.png 755 0 0
+file /cwm/res/images/icon_error.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_error.png 755 0 0
+file /cwm/res/images/icon_firmware_error.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_firmware_error.png 755 0 0
+file /cwm/res/images/icon_firmware_install.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_firmware_install.png 755 0 0
+file /cwm/res/images/icon_installing.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing.png 755 0 0
+file /cwm/res/images/icon_installing_overlay01.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay01.png 755 0 0
+file /cwm/res/images/icon_installing_overlay02.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay02.png 755 0 0
+file /cwm/res/images/icon_installing_overlay03.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay03.png 755 0 0
+file /cwm/res/images/icon_installing_overlay04.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay04.png 755 0 0
+file /cwm/res/images/icon_installing_overlay05.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay05.png 755 0 0
+file /cwm/res/images/icon_installing_overlay06.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay06.png 755 0 0
+file /cwm/res/images/icon_installing_overlay07.png source/usr/galaxy_ramdisk2/cwm/res/images/icon_installing_overlay07.png 755 0 0
+file /cwm/res/images/indeterminate01.png source/usr/galaxy_ramdisk2/cwm/res/images/indeterminate01.png 755 0 0
+file /cwm/res/images/indeterminate02.png source/usr/galaxy_ramdisk2/cwm/res/images/indeterminate02.png 755 0 0
+file /cwm/res/images/indeterminate03.png source/usr/galaxy_ramdisk2/cwm/res/images/indeterminate03.png 755 0 0
+file /cwm/res/images/indeterminate04.png source/usr/galaxy_ramdisk2/cwm/res/images/indeterminate04.png 755 0 0
+file /cwm/res/images/indeterminate05.png source/usr/galaxy_ramdisk2/cwm/res/images/indeterminate05.png 755 0 0
+file /cwm/res/images/indeterminate06.png source/usr/galaxy_ramdisk2/cwm/res/images/indeterminate06.png 755 0 0
+file /cwm/res/images/progress_empty.png source/usr/galaxy_ramdisk2/cwm/res/images/progress_empty.png 755 0 0
+file /cwm/res/images/progress_fill.png source/usr/galaxy_ramdisk2/cwm/res/images/progress_fill.png 755 0 0
+file /cwm/res/images/stitch.png source/usr/galaxy_ramdisk2/cwm/res/images/stitch.png 755 0 0
+file /cwm/res/keys source/usr/galaxy_ramdisk2/cwm/res/keys 755 0 0
+file /cwm/sbin/[ source/usr/galaxy_ramdisk2/cwm/sbin/[ 755 0 0
+file /cwm/sbin/[[ source/usr/galaxy_ramdisk2/cwm/sbin/[[ 755 0 0
+file /cwm/sbin/adbd source/usr/galaxy_ramdisk2/cwm/sbin/adbd 755 0 0
+file /cwm/sbin/ash source/usr/galaxy_ramdisk2/cwm/sbin/ash 755 0 0
+file /cwm/sbin/awk source/usr/galaxy_ramdisk2/cwm/sbin/awk 755 0 0
+file /cwm/sbin/basename source/usr/galaxy_ramdisk2/cwm/sbin/basename 755 0 0
+file /cwm/sbin/bbconfig source/usr/galaxy_ramdisk2/cwm/sbin/bbconfig 755 0 0
+file /cwm/sbin/blkid source/usr/galaxy_ramdisk2/cwm/sbin/blkid 755 0 0
+file /cwm/sbin/bunzip2 source/usr/galaxy_ramdisk2/cwm/sbin/bunzip2 755 0 0
+file /cwm/sbin/busybox source/usr/galaxy_ramdisk2/cwm/sbin/busybox 755 0 0
+file /cwm/sbin/bzcat source/usr/galaxy_ramdisk2/cwm/sbin/bzcat 755 0 0
+file /cwm/sbin/bzip2 source/usr/galaxy_ramdisk2/cwm/sbin/bzip2 755 0 0
+file /cwm/sbin/cal source/usr/galaxy_ramdisk2/cwm/sbin/cal 755 0 0
+file /cwm/sbin/cat source/usr/galaxy_ramdisk2/cwm/sbin/cat 755 0 0
+file /cwm/sbin/catv source/usr/galaxy_ramdisk2/cwm/sbin/catv 755 0 0
+file /cwm/sbin/chattr source/usr/galaxy_ramdisk2/cwm/sbin/chattr 755 0 0
+file /cwm/sbin/chgrp source/usr/galaxy_ramdisk2/cwm/sbin/chgrp 755 0 0
+file /cwm/sbin/chmod source/usr/galaxy_ramdisk2/cwm/sbin/chmod 755 0 0
+file /cwm/sbin/chown source/usr/galaxy_ramdisk2/cwm/sbin/chown 755 0 0
+file /cwm/sbin/chroot source/usr/galaxy_ramdisk2/cwm/sbin/chroot 755 0 0
+file /cwm/sbin/cksum source/usr/galaxy_ramdisk2/cwm/sbin/cksum 755 0 0
+file /cwm/sbin/clear source/usr/galaxy_ramdisk2/cwm/sbin/clear 755 0 0
+file /cwm/sbin/cmp source/usr/galaxy_ramdisk2/cwm/sbin/cmp 755 0 0
+file /cwm/sbin/cp source/usr/galaxy_ramdisk2/cwm/sbin/cp 755 0 0
+file /cwm/sbin/cpio source/usr/galaxy_ramdisk2/cwm/sbin/cpio 755 0 0
+file /cwm/sbin/cut source/usr/galaxy_ramdisk2/cwm/sbin/cut 755 0 0
+file /cwm/sbin/date source/usr/galaxy_ramdisk2/cwm/sbin/date 755 0 0
+file /cwm/sbin/dc source/usr/galaxy_ramdisk2/cwm/sbin/dc 755 0 0
+file /cwm/sbin/dd source/usr/galaxy_ramdisk2/cwm/sbin/dd 755 0 0
+file /cwm/sbin/dedupe source/usr/galaxy_ramdisk2/cwm/sbin/dedupe 755 0 0
+file /cwm/sbin/depmod source/usr/galaxy_ramdisk2/cwm/sbin/depmod 755 0 0
+file /cwm/sbin/devmem source/usr/galaxy_ramdisk2/cwm/sbin/devmem 755 0 0
+file /cwm/sbin/df source/usr/galaxy_ramdisk2/cwm/sbin/df 755 0 0
+file /cwm/sbin/diff source/usr/galaxy_ramdisk2/cwm/sbin/diff 755 0 0
+file /cwm/sbin/dirname source/usr/galaxy_ramdisk2/cwm/sbin/dirname 755 0 0
+file /cwm/sbin/dmesg source/usr/galaxy_ramdisk2/cwm/sbin/dmesg 755 0 0
+file /cwm/sbin/dos2unix source/usr/galaxy_ramdisk2/cwm/sbin/dos2unix 755 0 0
+file /cwm/sbin/du source/usr/galaxy_ramdisk2/cwm/sbin/du 755 0 0
+file /cwm/sbin/dump_image source/usr/galaxy_ramdisk2/cwm/sbin/dump_image 755 0 0
+file /cwm/sbin/e2fsck source/usr/galaxy_ramdisk2/cwm/sbin/e2fsck 755 0 0
+file /cwm/sbin/echo source/usr/galaxy_ramdisk2/cwm/sbin/echo 755 0 0
+file /cwm/sbin/edify source/usr/galaxy_ramdisk2/cwm/sbin/edify 755 0 0
+file /cwm/sbin/egrep source/usr/galaxy_ramdisk2/cwm/sbin/egrep 755 0 0
+file /cwm/sbin/env source/usr/galaxy_ramdisk2/cwm/sbin/env 755 0 0
+file /cwm/sbin/erase_image source/usr/galaxy_ramdisk2/cwm/sbin/erase_image 755 0 0
+file /cwm/sbin/expand source/usr/galaxy_ramdisk2/cwm/sbin/expand 755 0 0
+file /cwm/sbin/expr source/usr/galaxy_ramdisk2/cwm/sbin/expr 755 0 0
+file /cwm/sbin/false source/usr/galaxy_ramdisk2/cwm/sbin/false 755 0 0
+file /cwm/sbin/fdisk source/usr/galaxy_ramdisk2/cwm/sbin/fdisk 755 0 0
+file /cwm/sbin/fgrep source/usr/galaxy_ramdisk2/cwm/sbin/fgrep 755 0 0
+file /cwm/sbin/find source/usr/galaxy_ramdisk2/cwm/sbin/find 755 0 0
+file /cwm/sbin/fix_permissions source/usr/galaxy_ramdisk2/cwm/sbin/fix_permissions 755 0 0
+file /cwm/sbin/flash_image source/usr/galaxy_ramdisk2/cwm/sbin/flash_image 755 0 0
+file /cwm/sbin/fold source/usr/galaxy_ramdisk2/cwm/sbin/fold 755 0 0
+file /cwm/sbin/free source/usr/galaxy_ramdisk2/cwm/sbin/free 755 0 0
+file /cwm/sbin/freeramdisk source/usr/galaxy_ramdisk2/cwm/sbin/freeramdisk 755 0 0
+file /cwm/sbin/fstrim source/usr/galaxy_ramdisk2/cwm/sbin/fstrim 755 0 0
+file /cwm/sbin/fuser source/usr/galaxy_ramdisk2/cwm/sbin/fuser 755 0 0
+file /cwm/sbin/getopt source/usr/galaxy_ramdisk2/cwm/sbin/getopt 755 0 0
+file /cwm/sbin/grep source/usr/galaxy_ramdisk2/cwm/sbin/grep 755 0 0
+file /cwm/sbin/groups source/usr/galaxy_ramdisk2/cwm/sbin/groups 755 0 0
+file /cwm/sbin/gunzip source/usr/galaxy_ramdisk2/cwm/sbin/gunzip 755 0 0
+file /cwm/sbin/gzip source/usr/galaxy_ramdisk2/cwm/sbin/gzip 755 0 0
+file /cwm/sbin/head source/usr/galaxy_ramdisk2/cwm/sbin/head 755 0 0
+file /cwm/sbin/hexdump source/usr/galaxy_ramdisk2/cwm/sbin/hexdump 755 0 0
+file /cwm/sbin/id source/usr/galaxy_ramdisk2/cwm/sbin/id 755 0 0
+file /cwm/sbin/insmod source/usr/galaxy_ramdisk2/cwm/sbin/insmod 755 0 0
+file /cwm/sbin/install source/usr/galaxy_ramdisk2/cwm/sbin/install 755 0 0
+file /cwm/sbin/kill source/usr/galaxy_ramdisk2/cwm/sbin/kill 755 0 0
+file /cwm/sbin/killall source/usr/galaxy_ramdisk2/cwm/sbin/killall 755 0 0
+file /cwm/sbin/killall5 source/usr/galaxy_ramdisk2/cwm/sbin/killall5 755 0 0
+file /cwm/sbin/killrecovery.sh source/usr/galaxy_ramdisk2/cwm/sbin/killrecovery.sh 755 0 0
+file /cwm/sbin/length source/usr/galaxy_ramdisk2/cwm/sbin/length 755 0 0
+file /cwm/sbin/less source/usr/galaxy_ramdisk2/cwm/sbin/less 755 0 0
+file /cwm/sbin/ln source/usr/galaxy_ramdisk2/cwm/sbin/ln 755 0 0
+file /cwm/sbin/losetup source/usr/galaxy_ramdisk2/cwm/sbin/losetup 755 0 0
+file /cwm/sbin/ls source/usr/galaxy_ramdisk2/cwm/sbin/ls 755 0 0
+file /cwm/sbin/lsattr source/usr/galaxy_ramdisk2/cwm/sbin/lsattr 755 0 0
+file /cwm/sbin/lsmod source/usr/galaxy_ramdisk2/cwm/sbin/lsmod 755 0 0
+file /cwm/sbin/lspci source/usr/galaxy_ramdisk2/cwm/sbin/lspci 755 0 0
+file /cwm/sbin/lsusb source/usr/galaxy_ramdisk2/cwm/sbin/lsusb 755 0 0
+file /cwm/sbin/lzcat source/usr/galaxy_ramdisk2/cwm/sbin/lzcat 755 0 0
+file /cwm/sbin/lzop source/usr/galaxy_ramdisk2/cwm/sbin/lzop 755 0 0
+file /cwm/sbin/lzopcat source/usr/galaxy_ramdisk2/cwm/sbin/lzopcat 755 0 0
+file /cwm/sbin/makedevs source/usr/galaxy_ramdisk2/cwm/sbin/makedevs 755 0 0
+file /cwm/sbin/md5sum source/usr/galaxy_ramdisk2/cwm/sbin/md5sum 755 0 0
+file /cwm/sbin/minizip source/usr/galaxy_ramdisk2/cwm/sbin/minizip 755 0 0
+file /cwm/sbin/mkdir source/usr/galaxy_ramdisk2/cwm/sbin/mkdir 755 0 0
+file /cwm/sbin/mke2fs source/usr/galaxy_ramdisk2/cwm/sbin/mke2fs 755 0 0
+file /cwm/sbin/mkfifo source/usr/galaxy_ramdisk2/cwm/sbin/mkfifo 755 0 0
+file /cwm/sbin/mkfs.ext2 source/usr/galaxy_ramdisk2/cwm/sbin/mkfs.ext2 755 0 0
+file /cwm/sbin/mknod source/usr/galaxy_ramdisk2/cwm/sbin/mknod 755 0 0
+file /cwm/sbin/mkswap source/usr/galaxy_ramdisk2/cwm/sbin/mkswap 755 0 0
+file /cwm/sbin/mktemp source/usr/galaxy_ramdisk2/cwm/sbin/mktemp 755 0 0
+file /cwm/sbin/mkyaffs2image source/usr/galaxy_ramdisk2/cwm/sbin/mkyaffs2image 755 0 0
+file /cwm/sbin/modinfo source/usr/galaxy_ramdisk2/cwm/sbin/modinfo 755 0 0
+file /cwm/sbin/modprobe source/usr/galaxy_ramdisk2/cwm/sbin/modprobe 755 0 0
+file /cwm/sbin/more source/usr/galaxy_ramdisk2/cwm/sbin/more 755 0 0
+file /cwm/sbin/mount source/usr/galaxy_ramdisk2/cwm/sbin/mount 755 0 0
+file /cwm/sbin/mountpoint source/usr/galaxy_ramdisk2/cwm/sbin/mountpoint 755 0 0
+file /cwm/sbin/mv source/usr/galaxy_ramdisk2/cwm/sbin/mv 755 0 0
+file /cwm/sbin/nanddump source/usr/galaxy_ramdisk2/cwm/sbin/nanddump 755 0 0
+file /cwm/sbin/nandroid source/usr/galaxy_ramdisk2/cwm/sbin/nandroid 755 0 0
+file /cwm/sbin/nandroid-md5.sh source/usr/galaxy_ramdisk2/cwm/sbin/nandroid-md5.sh 755 0 0
+file /cwm/sbin/nandwrite source/usr/galaxy_ramdisk2/cwm/sbin/nandwrite 755 0 0
+file /cwm/sbin/nice source/usr/galaxy_ramdisk2/cwm/sbin/nice 755 0 0
+file /cwm/sbin/nohup source/usr/galaxy_ramdisk2/cwm/sbin/nohup 755 0 0
+file /cwm/sbin/od source/usr/galaxy_ramdisk2/cwm/sbin/od 755 0 0
+file /cwm/sbin/parted source/usr/galaxy_ramdisk2/cwm/sbin/parted 755 0 0
+file /cwm/sbin/patch source/usr/galaxy_ramdisk2/cwm/sbin/patch 755 0 0
+file /cwm/sbin/pgrep source/usr/galaxy_ramdisk2/cwm/sbin/pgrep 755 0 0
+file /cwm/sbin/pidof source/usr/galaxy_ramdisk2/cwm/sbin/pidof 755 0 0
+file /cwm/sbin/pkill source/usr/galaxy_ramdisk2/cwm/sbin/pkill 755 0 0
+file /cwm/sbin/printenv source/usr/galaxy_ramdisk2/cwm/sbin/printenv 755 0 0
+file /cwm/sbin/printf source/usr/galaxy_ramdisk2/cwm/sbin/printf 755 0 0
+file /cwm/sbin/ps source/usr/galaxy_ramdisk2/cwm/sbin/ps 755 0 0
+file /cwm/sbin/pstree source/usr/galaxy_ramdisk2/cwm/sbin/pstree 755 0 0
+file /cwm/sbin/pwd source/usr/galaxy_ramdisk2/cwm/sbin/pwd 755 0 0
+file /cwm/sbin/rdev source/usr/galaxy_ramdisk2/cwm/sbin/rdev 755 0 0
+file /cwm/sbin/readlink source/usr/galaxy_ramdisk2/cwm/sbin/readlink 755 0 0
+file /cwm/sbin/realpath source/usr/galaxy_ramdisk2/cwm/sbin/realpath 755 0 0
+file /cwm/sbin/reboot source/usr/galaxy_ramdisk2/cwm/sbin/reboot 755 0 0
+file /cwm/sbin/recovery source/usr/galaxy_ramdisk2/cwm/sbin/recovery 755 0 0
+file /cwm/sbin/renice source/usr/galaxy_ramdisk2/cwm/sbin/renice 755 0 0
+file /cwm/sbin/reset source/usr/galaxy_ramdisk2/cwm/sbin/reset 755 0 0
+file /cwm/sbin/resize source/usr/galaxy_ramdisk2/cwm/sbin/resize 755 0 0
+file /cwm/sbin/rev source/usr/galaxy_ramdisk2/cwm/sbin/rev 755 0 0
+file /cwm/sbin/rm source/usr/galaxy_ramdisk2/cwm/sbin/rm 755 0 0
+file /cwm/sbin/rmdir source/usr/galaxy_ramdisk2/cwm/sbin/rmdir 755 0 0
+file /cwm/sbin/rmmod source/usr/galaxy_ramdisk2/cwm/sbin/rmmod 755 0 0
+file /cwm/sbin/run-parts source/usr/galaxy_ramdisk2/cwm/sbin/run-parts 755 0 0
+file /cwm/sbin/sdparted source/usr/galaxy_ramdisk2/cwm/sbin/sdparted 755 0 0
+file /cwm/sbin/sed source/usr/galaxy_ramdisk2/cwm/sbin/sed 755 0 0
+file /cwm/sbin/seq source/usr/galaxy_ramdisk2/cwm/sbin/seq 755 0 0
+file /cwm/sbin/setconsole source/usr/galaxy_ramdisk2/cwm/sbin/setconsole 755 0 0
+file /cwm/sbin/setprop source/usr/galaxy_ramdisk2/cwm/sbin/setprop 755 0 0
+file /cwm/sbin/setserial source/usr/galaxy_ramdisk2/cwm/sbin/setserial 755 0 0
+file /cwm/sbin/setsid source/usr/galaxy_ramdisk2/cwm/sbin/setsid 755 0 0
+file /cwm/sbin/setupdatadata.sh source/usr/galaxy_ramdisk2/cwm/sbin/setupdatadata.sh 755 0 0
+file /cwm/sbin/sh source/usr/galaxy_ramdisk2/cwm/sbin/sh 755 0 0
+file /cwm/sbin/sha1sum source/usr/galaxy_ramdisk2/cwm/sbin/sha1sum 755 0 0
+file /cwm/sbin/sha256sum source/usr/galaxy_ramdisk2/cwm/sbin/sha256sum 755 0 0
+file /cwm/sbin/sha512sum source/usr/galaxy_ramdisk2/cwm/sbin/sha512sum 755 0 0
+file /cwm/sbin/sleep source/usr/galaxy_ramdisk2/cwm/sbin/sleep 755 0 0
+file /cwm/sbin/sort source/usr/galaxy_ramdisk2/cwm/sbin/sort 755 0 0
+file /cwm/sbin/split source/usr/galaxy_ramdisk2/cwm/sbin/split 755 0 0
+file /cwm/sbin/stat source/usr/galaxy_ramdisk2/cwm/sbin/stat 755 0 0
+file /cwm/sbin/strings source/usr/galaxy_ramdisk2/cwm/sbin/strings 755 0 0
+file /cwm/sbin/stty source/usr/galaxy_ramdisk2/cwm/sbin/stty 755 0 0
+file /cwm/sbin/swapoff source/usr/galaxy_ramdisk2/cwm/sbin/swapoff 755 0 0
+file /cwm/sbin/swapon source/usr/galaxy_ramdisk2/cwm/sbin/swapon 755 0 0
+file /cwm/sbin/sync source/usr/galaxy_ramdisk2/cwm/sbin/sync 755 0 0
+file /cwm/sbin/sysctl source/usr/galaxy_ramdisk2/cwm/sbin/sysctl 755 0 0
+file /cwm/sbin/tac source/usr/galaxy_ramdisk2/cwm/sbin/tac 755 0 0
+file /cwm/sbin/tail source/usr/galaxy_ramdisk2/cwm/sbin/tail 755 0 0
+file /cwm/sbin/tar source/usr/galaxy_ramdisk2/cwm/sbin/tar 755 0 0
+file /cwm/sbin/tee source/usr/galaxy_ramdisk2/cwm/sbin/tee 755 0 0
+file /cwm/sbin/test source/usr/galaxy_ramdisk2/cwm/sbin/test 755 0 0
+file /cwm/sbin/time source/usr/galaxy_ramdisk2/cwm/sbin/time 755 0 0
+file /cwm/sbin/top source/usr/galaxy_ramdisk2/cwm/sbin/top 755 0 0
+file /cwm/sbin/touch source/usr/galaxy_ramdisk2/cwm/sbin/touch 755 0 0
+file /cwm/sbin/tr source/usr/galaxy_ramdisk2/cwm/sbin/tr 755 0 0
+file /cwm/sbin/true source/usr/galaxy_ramdisk2/cwm/sbin/true 755 0 0
+file /cwm/sbin/ttysize source/usr/galaxy_ramdisk2/cwm/sbin/ttysize 755 0 0
+file /cwm/sbin/tune2fs source/usr/galaxy_ramdisk2/cwm/sbin/tune2fs 755 0 0
+file /cwm/sbin/ueventd source/usr/galaxy_ramdisk2/cwm/sbin/ueventd 755 0 0
+file /cwm/sbin/umount source/usr/galaxy_ramdisk2/cwm/sbin/umount 755 0 0
+file /cwm/sbin/uname source/usr/galaxy_ramdisk2/cwm/sbin/uname 755 0 0
+file /cwm/sbin/unexpand source/usr/galaxy_ramdisk2/cwm/sbin/unexpand 755 0 0
+file /cwm/sbin/uniq source/usr/galaxy_ramdisk2/cwm/sbin/uniq 755 0 0
+file /cwm/sbin/unix2dos source/usr/galaxy_ramdisk2/cwm/sbin/unix2dos 755 0 0
+file /cwm/sbin/unlzma source/usr/galaxy_ramdisk2/cwm/sbin/unlzma 755 0 0
+file /cwm/sbin/unlzop source/usr/galaxy_ramdisk2/cwm/sbin/unlzop 755 0 0
+file /cwm/sbin/unxz source/usr/galaxy_ramdisk2/cwm/sbin/unxz 755 0 0
+file /cwm/sbin/unyaffs source/usr/galaxy_ramdisk2/cwm/sbin/unyaffs 755 0 0
+file /cwm/sbin/unzip source/usr/galaxy_ramdisk2/cwm/sbin/unzip 755 0 0
+file /cwm/sbin/uptime source/usr/galaxy_ramdisk2/cwm/sbin/uptime 755 0 0
+file /cwm/sbin/usleep source/usr/galaxy_ramdisk2/cwm/sbin/usleep 755 0 0
+file /cwm/sbin/uudecode source/usr/galaxy_ramdisk2/cwm/sbin/uudecode 755 0 0
+file /cwm/sbin/uuencode source/usr/galaxy_ramdisk2/cwm/sbin/uuencode 755 0 0
+file /cwm/sbin/volume source/usr/galaxy_ramdisk2/cwm/sbin/volume 755 0 0
+file /cwm/sbin/watch source/usr/galaxy_ramdisk2/cwm/sbin/watch 755 0 0
+file /cwm/sbin/watchdogd source/usr/galaxy_ramdisk2/cwm/sbin/watchdogd 755 0 0
+file /cwm/sbin/wc source/usr/galaxy_ramdisk2/cwm/sbin/wc 755 0 0
+file /cwm/sbin/which source/usr/galaxy_ramdisk2/cwm/sbin/which 755 0 0
+file /cwm/sbin/whoami source/usr/galaxy_ramdisk2/cwm/sbin/whoami 755 0 0
+file /cwm/sbin/xargs source/usr/galaxy_ramdisk2/cwm/sbin/xargs 755 0 0
+file /cwm/sbin/xzcat source/usr/galaxy_ramdisk2/cwm/sbin/xzcat 755 0 0
+file /cwm/sbin/yes source/usr/galaxy_ramdisk2/cwm/sbin/yes 755 0 0
+file /cwm/sbin/zcat source/usr/galaxy_ramdisk2/cwm/sbin/zcat 755 0 0
+file /cwm/ueventd.aries.rc source/usr/galaxy_ramdisk2/cwm/ueventd.aries.rc 755 0 0
+file /cwm/ueventd.goldfish.rc source/usr/galaxy_ramdisk2/cwm/ueventd.goldfish.rc 755 0 0
+file /cwm/ueventd.rc source/usr/galaxy_ramdisk2/cwm/ueventd.rc 755 0 0
+file /cwm/usb.rc source/usr/galaxy_ramdisk2/cwm/usb.rc 755 0 0
+#twrp recovery
+file /twrp/charger source/usr/galaxy_ramdisk2/twrp/charger 755 0 0
+file /twrp/default.prop source/usr/galaxy_ramdisk2/twrp/default.prop 755 0 0
+file /twrp/etc/mke2fs.conf source/usr/galaxy_ramdisk2/twrp/etc/mke2fs.conf 755 0 0
+file /twrp/etc/recovery.fstab source/usr/galaxy_ramdisk2/twrp/etc/recovery.fstab 755 0 0
+file /twrp/fstab.aries source/usr/galaxy_ramdisk2/twrp/fstab.aries 755 0 0
+file /twrp/init source/usr/galaxy_ramdisk2/twrp/init 755 0 0
+file /twrp/init.rc source/usr/galaxy_ramdisk2/twrp/init.rc 755 0 0
+file /twrp/lpm.rc source/usr/galaxy_ramdisk2/twrp/lpm.rc 755 0 0
+file /twrp/res/dummyfileforgit source/usr/galaxy_ramdisk2/twrp/res/dummyfileforgit 755 0 0
+file /twrp/res/fonts/Roboto-Regular-20.dat source/usr/galaxy_ramdisk2/twrp/res/fonts/Roboto-Regular-20.dat 755 0 0
+file /twrp/res/images/back-icon.png source/usr/galaxy_ramdisk2/twrp/res/images/back-icon.png 755 0 0
+file /twrp/res/images/charger/battery_0.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_0.png 755 0 0
+file /twrp/res/images/charger/battery_1.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_1.png 755 0 0
+file /twrp/res/images/charger/battery_2.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_2.png 755 0 0
+file /twrp/res/images/charger/battery_3.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_3.png 755 0 0
+file /twrp/res/images/charger/battery_4.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_4.png 755 0 0
+file /twrp/res/images/charger/battery_5.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_5.png 755 0 0
+file /twrp/res/images/charger/battery_charge.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_charge.png 755 0 0
+file /twrp/res/images/charger/battery_fail.png source/usr/galaxy_ramdisk2/twrp/res/images/charger/battery_fail.png 755 0 0
+file /twrp/res/images/checkbox_checked.png source/usr/galaxy_ramdisk2/twrp/res/images/checkbox_checked.png 755 0 0
+file /twrp/res/images/checkbox_empty.png source/usr/galaxy_ramdisk2/twrp/res/images/checkbox_empty.png 755 0 0
+file /twrp/res/images/curtain.jpg source/usr/galaxy_ramdisk2/twrp/res/images/curtain.jpg 755 0 0
+file /twrp/res/images/exclamation200.png source/usr/galaxy_ramdisk2/twrp/res/images/exclamation200.png 755 0 0
+file /twrp/res/images/file.png source/usr/galaxy_ramdisk2/twrp/res/images/file.png 755 0 0
+file /twrp/res/images/folder.png source/usr/galaxy_ramdisk2/twrp/res/images/folder.png 755 0 0
+file /twrp/res/images/home-icon.png source/usr/galaxy_ramdisk2/twrp/res/images/home-icon.png 755 0 0
+file /twrp/res/images/indeterminate001.png source/usr/galaxy_ramdisk2/twrp/res/images/indeterminate001.png 755 0 0
+file /twrp/res/images/indeterminate002.png source/usr/galaxy_ramdisk2/twrp/res/images/indeterminate002.png 755 0 0
+file /twrp/res/images/indeterminate003.png source/usr/galaxy_ramdisk2/twrp/res/images/indeterminate003.png 755 0 0
+file /twrp/res/images/indeterminate004.png source/usr/galaxy_ramdisk2/twrp/res/images/indeterminate004.png 755 0 0
+file /twrp/res/images/indeterminate005.png source/usr/galaxy_ramdisk2/twrp/res/images/indeterminate005.png 755 0 0
+file /twrp/res/images/indeterminate006.png source/usr/galaxy_ramdisk2/twrp/res/images/indeterminate006.png 755 0 0
+file /twrp/res/images/keyboard1.png source/usr/galaxy_ramdisk2/twrp/res/images/keyboard1.png 755 0 0
+file /twrp/res/images/keyboard2.png source/usr/galaxy_ramdisk2/twrp/res/images/keyboard2.png 755 0 0
+file /twrp/res/images/keyboard3.png source/usr/galaxy_ramdisk2/twrp/res/images/keyboard3.png 755 0 0
+file /twrp/res/images/keyboard4.png source/usr/galaxy_ramdisk2/twrp/res/images/keyboard4.png 755 0 0
+file /twrp/res/images/medium-button.png source/usr/galaxy_ramdisk2/twrp/res/images/medium-button.png 755 0 0
+file /twrp/res/images/menu-button.png source/usr/galaxy_ramdisk2/twrp/res/images/menu-button.png 755 0 0
+file /twrp/res/images/minus-button.png source/usr/galaxy_ramdisk2/twrp/res/images/minus-button.png 755 0 0
+file /twrp/res/images/plus-button.png source/usr/galaxy_ramdisk2/twrp/res/images/plus-button.png 755 0 0
+file /twrp/res/images/progress_empty.png source/usr/galaxy_ramdisk2/twrp/res/images/progress_empty.png 755 0 0
+file /twrp/res/images/progress_fill.png source/usr/galaxy_ramdisk2/twrp/res/images/progress_fill.png 755 0 0
+file /twrp/res/images/radio_empty.png source/usr/galaxy_ramdisk2/twrp/res/images/radio_empty.png 755 0 0
+file /twrp/res/images/radio_selected.png source/usr/galaxy_ramdisk2/twrp/res/images/radio_selected.png 755 0 0
+file /twrp/res/images/slideout.png source/usr/galaxy_ramdisk2/twrp/res/images/slideout.png 755 0 0
+file /twrp/res/images/slider-touch.png source/usr/galaxy_ramdisk2/twrp/res/images/slider-touch.png 755 0 0
+file /twrp/res/images/slider-used.png source/usr/galaxy_ramdisk2/twrp/res/images/slider-used.png 755 0 0
+file /twrp/res/images/slider.png source/usr/galaxy_ramdisk2/twrp/res/images/slider.png 755 0 0
+file /twrp/res/images/sort-button.png source/usr/galaxy_ramdisk2/twrp/res/images/sort-button.png 755 0 0
+file /twrp/res/images/top-bar.jpg source/usr/galaxy_ramdisk2/twrp/res/images/top-bar.jpg 755 0 0
+file /twrp/res/images/unlock.png source/usr/galaxy_ramdisk2/twrp/res/images/unlock.png 755 0 0
+file /twrp/res/keys source/usr/galaxy_ramdisk2/twrp/res/keys 755 0 0
+file /twrp/res/twrp source/usr/galaxy_ramdisk2/twrp/res/twrp 755 0 0
+file /twrp/res/ui.xml source/usr/galaxy_ramdisk2/twrp/res/ui.xml 755 0 0
+file /twrp/sbin/[ source/usr/galaxy_ramdisk2/twrp/sbin/[ 755 0 0
+file /twrp/sbin/[[ source/usr/galaxy_ramdisk2/twrp/sbin/[[ 755 0 0
+file /twrp/sbin/adbd source/usr/galaxy_ramdisk2/twrp/sbin/adbd 755 0 0
+file /twrp/sbin/adjtimex source/usr/galaxy_ramdisk2/twrp/sbin/adjtimex 755 0 0
+file /twrp/sbin/arp source/usr/galaxy_ramdisk2/twrp/sbin/arp 755 0 0
+file /twrp/sbin/ash source/usr/galaxy_ramdisk2/twrp/sbin/ash 755 0 0
+file /twrp/sbin/awk source/usr/galaxy_ramdisk2/twrp/sbin/awk 755 0 0
+file /twrp/sbin/base64 source/usr/galaxy_ramdisk2/twrp/sbin/base64 755 0 0
+file /twrp/sbin/basename source/usr/galaxy_ramdisk2/twrp/sbin/basename 755 0 0
+file /twrp/sbin/bbconfig source/usr/galaxy_ramdisk2/twrp/sbin/bbconfig 755 0 0
+file /twrp/sbin/blkid source/usr/galaxy_ramdisk2/twrp/sbin/blkid 755 0 0
+file /twrp/sbin/blockdev source/usr/galaxy_ramdisk2/twrp/sbin/blockdev 755 0 0
+file /twrp/sbin/brctl source/usr/galaxy_ramdisk2/twrp/sbin/brctl 755 0 0
+file /twrp/sbin/bunzip2 source/usr/galaxy_ramdisk2/twrp/sbin/bunzip2 755 0 0
+file /twrp/sbin/busybox source/usr/galaxy_ramdisk2/twrp/sbin/busybox 755 0 0
+file /twrp/sbin/bzcat source/usr/galaxy_ramdisk2/twrp/sbin/bzcat 755 0 0
+file /twrp/sbin/bzip2 source/usr/galaxy_ramdisk2/twrp/sbin/bzip2 755 0 0
+file /twrp/sbin/cal source/usr/galaxy_ramdisk2/twrp/sbin/cal 755 0 0
+file /twrp/sbin/cat source/usr/galaxy_ramdisk2/twrp/sbin/cat 755 0 0
+file /twrp/sbin/catv source/usr/galaxy_ramdisk2/twrp/sbin/catv 755 0 0
+file /twrp/sbin/chattr source/usr/galaxy_ramdisk2/twrp/sbin/chattr 755 0 0
+file /twrp/sbin/chgrp source/usr/galaxy_ramdisk2/twrp/sbin/chgrp 755 0 0
+file /twrp/sbin/chmod source/usr/galaxy_ramdisk2/twrp/sbin/chmod 755 0 0
+file /twrp/sbin/chown source/usr/galaxy_ramdisk2/twrp/sbin/chown 755 0 0
+file /twrp/sbin/chroot source/usr/galaxy_ramdisk2/twrp/sbin/chroot 755 0 0
+file /twrp/sbin/clear source/usr/galaxy_ramdisk2/twrp/sbin/clear 755 0 0
+file /twrp/sbin/cmp source/usr/galaxy_ramdisk2/twrp/sbin/cmp 755 0 0
+file /twrp/sbin/comm source/usr/galaxy_ramdisk2/twrp/sbin/comm 755 0 0
+file /twrp/sbin/cp source/usr/galaxy_ramdisk2/twrp/sbin/cp 755 0 0
+file /twrp/sbin/cpio source/usr/galaxy_ramdisk2/twrp/sbin/cpio 755 0 0
+file /twrp/sbin/crond source/usr/galaxy_ramdisk2/twrp/sbin/crond 755 0 0
+file /twrp/sbin/crontab source/usr/galaxy_ramdisk2/twrp/sbin/crontab 755 0 0
+file /twrp/sbin/cut source/usr/galaxy_ramdisk2/twrp/sbin/cut 755 0 0
+file /twrp/sbin/date source/usr/galaxy_ramdisk2/twrp/sbin/date 755 0 0
+file /twrp/sbin/dc source/usr/galaxy_ramdisk2/twrp/sbin/dc 755 0 0
+file /twrp/sbin/dd source/usr/galaxy_ramdisk2/twrp/sbin/dd 755 0 0
+file /twrp/sbin/depmod source/usr/galaxy_ramdisk2/twrp/sbin/depmod 755 0 0
+file /twrp/sbin/devmem source/usr/galaxy_ramdisk2/twrp/sbin/devmem 755 0 0
+file /twrp/sbin/df source/usr/galaxy_ramdisk2/twrp/sbin/df 755 0 0
+file /twrp/sbin/diff source/usr/galaxy_ramdisk2/twrp/sbin/diff 755 0 0
+file /twrp/sbin/dirname source/usr/galaxy_ramdisk2/twrp/sbin/dirname 755 0 0
+file /twrp/sbin/dmesg source/usr/galaxy_ramdisk2/twrp/sbin/dmesg 755 0 0
+file /twrp/sbin/dnsd source/usr/galaxy_ramdisk2/twrp/sbin/dnsd 755 0 0
+file /twrp/sbin/dos2unix source/usr/galaxy_ramdisk2/twrp/sbin/dos2unix 755 0 0
+file /twrp/sbin/dosfsck source/usr/galaxy_ramdisk2/twrp/sbin/dosfsck 755 0 0
+file /twrp/sbin/dosfslabel source/usr/galaxy_ramdisk2/twrp/sbin/dosfslabel 755 0 0
+file /twrp/sbin/du source/usr/galaxy_ramdisk2/twrp/sbin/du 755 0 0
+file /twrp/sbin/dump_image source/usr/galaxy_ramdisk2/twrp/sbin/dump_image 755 0 0
+file /twrp/sbin/e2fsck source/usr/galaxy_ramdisk2/twrp/sbin/e2fsck 755 0 0
+file /twrp/sbin/echo source/usr/galaxy_ramdisk2/twrp/sbin/echo 755 0 0
+file /twrp/sbin/ed source/usr/galaxy_ramdisk2/twrp/sbin/ed 755 0 0
+file /twrp/sbin/egrep source/usr/galaxy_ramdisk2/twrp/sbin/egrep 755 0 0
+file /twrp/sbin/env source/usr/galaxy_ramdisk2/twrp/sbin/env 755 0 0
+file /twrp/sbin/erase_image source/usr/galaxy_ramdisk2/twrp/sbin/erase_image 755 0 0
+file /twrp/sbin/exfat-fuse source/usr/galaxy_ramdisk2/twrp/sbin/exfat-fuse 755 0 0
+file /twrp/sbin/expand source/usr/galaxy_ramdisk2/twrp/sbin/expand 755 0 0
+file /twrp/sbin/expr source/usr/galaxy_ramdisk2/twrp/sbin/expr 755 0 0
+file /twrp/sbin/false source/usr/galaxy_ramdisk2/twrp/sbin/false 755 0 0
+file /twrp/sbin/fbsplash source/usr/galaxy_ramdisk2/twrp/sbin/fbsplash 755 0 0
+file /twrp/sbin/fdisk source/usr/galaxy_ramdisk2/twrp/sbin/fdisk 755 0 0
+file /twrp/sbin/fgrep source/usr/galaxy_ramdisk2/twrp/sbin/fgrep 755 0 0
+file /twrp/sbin/find source/usr/galaxy_ramdisk2/twrp/sbin/find 755 0 0
+file /twrp/sbin/fix_permissions.sh source/usr/galaxy_ramdisk2/twrp/sbin/fix_permissions.sh 755 0 0
+file /twrp/sbin/flash_image source/usr/galaxy_ramdisk2/twrp/sbin/flash_image 755 0 0
+file /twrp/sbin/flash_lock source/usr/galaxy_ramdisk2/twrp/sbin/flash_lock 755 0 0
+file /twrp/sbin/flash_unlock source/usr/galaxy_ramdisk2/twrp/sbin/flash_unlock 755 0 0
+file /twrp/sbin/flashcp source/usr/galaxy_ramdisk2/twrp/sbin/flashcp 755 0 0
+file /twrp/sbin/flock source/usr/galaxy_ramdisk2/twrp/sbin/flock 755 0 0
+file /twrp/sbin/fold source/usr/galaxy_ramdisk2/twrp/sbin/fold 755 0 0
+file /twrp/sbin/free source/usr/galaxy_ramdisk2/twrp/sbin/free 755 0 0
+file /twrp/sbin/freeramdisk source/usr/galaxy_ramdisk2/twrp/sbin/freeramdisk 755 0 0
+file /twrp/sbin/fstrim source/usr/galaxy_ramdisk2/twrp/sbin/fstrim 755 0 0
+file /twrp/sbin/fsync source/usr/galaxy_ramdisk2/twrp/sbin/fsync 755 0 0
+file /twrp/sbin/ftpget source/usr/galaxy_ramdisk2/twrp/sbin/ftpget 755 0 0
+file /twrp/sbin/ftpput source/usr/galaxy_ramdisk2/twrp/sbin/ftpput 755 0 0
+file /twrp/sbin/fuser source/usr/galaxy_ramdisk2/twrp/sbin/fuser 755 0 0
+file /twrp/sbin/getopt source/usr/galaxy_ramdisk2/twrp/sbin/getopt 755 0 0
+file /twrp/sbin/grep source/usr/galaxy_ramdisk2/twrp/sbin/grep 755 0 0
+file /twrp/sbin/groups source/usr/galaxy_ramdisk2/twrp/sbin/groups 755 0 0
+file /twrp/sbin/gunzip source/usr/galaxy_ramdisk2/twrp/sbin/gunzip 755 0 0
+file /twrp/sbin/gzip source/usr/galaxy_ramdisk2/twrp/sbin/gzip 755 0 0
+file /twrp/sbin/halt source/usr/galaxy_ramdisk2/twrp/sbin/halt 755 0 0
+file /twrp/sbin/head source/usr/galaxy_ramdisk2/twrp/sbin/head 755 0 0
+file /twrp/sbin/hexdump source/usr/galaxy_ramdisk2/twrp/sbin/hexdump 755 0 0
+file /twrp/sbin/id source/usr/galaxy_ramdisk2/twrp/sbin/id 755 0 0
+file /twrp/sbin/ifconfig source/usr/galaxy_ramdisk2/twrp/sbin/ifconfig 755 0 0
+file /twrp/sbin/inetd source/usr/galaxy_ramdisk2/twrp/sbin/inetd 755 0 0
+file /twrp/sbin/insmod source/usr/galaxy_ramdisk2/twrp/sbin/insmod 755 0 0
+file /twrp/sbin/install source/usr/galaxy_ramdisk2/twrp/sbin/install 755 0 0
+file /twrp/sbin/ionice source/usr/galaxy_ramdisk2/twrp/sbin/ionice 755 0 0
+file /twrp/sbin/iostat source/usr/galaxy_ramdisk2/twrp/sbin/iostat 755 0 0
+file /twrp/sbin/ip source/usr/galaxy_ramdisk2/twrp/sbin/ip 755 0 0
+file /twrp/sbin/kill source/usr/galaxy_ramdisk2/twrp/sbin/kill 755 0 0
+file /twrp/sbin/killall source/usr/galaxy_ramdisk2/twrp/sbin/killall 755 0 0
+file /twrp/sbin/killall5 source/usr/galaxy_ramdisk2/twrp/sbin/killall5 755 0 0
+file /twrp/sbin/less source/usr/galaxy_ramdisk2/twrp/sbin/less 755 0 0
+file /twrp/sbin/libblkid.so source/usr/galaxy_ramdisk2/twrp/sbin/libblkid.so 755 0 0
+file /twrp/sbin/libbmlutils.so source/usr/galaxy_ramdisk2/twrp/sbin/libbmlutils.so 755 0 0
+file /twrp/sbin/libc.so source/usr/galaxy_ramdisk2/twrp/sbin/libc.so 755 0 0
+file /twrp/sbin/libcutils.so source/usr/galaxy_ramdisk2/twrp/sbin/libcutils.so 755 0 0
+file /twrp/sbin/libdl.so source/usr/galaxy_ramdisk2/twrp/sbin/libdl.so 755 0 0
+file /twrp/sbin/libexfat.so source/usr/galaxy_ramdisk2/twrp/sbin/libexfat.so 755 0 0
+file /twrp/sbin/libext2_blkid.so source/usr/galaxy_ramdisk2/twrp/sbin/libext2_blkid.so 755 0 0
+file /twrp/sbin/libext2_com_err.so source/usr/galaxy_ramdisk2/twrp/sbin/libext2_com_err.so 755 0 0
+file /twrp/sbin/libext2_e2p.so source/usr/galaxy_ramdisk2/twrp/sbin/libext2_e2p.so 755 0 0
+file /twrp/sbin/libext2_profile.so source/usr/galaxy_ramdisk2/twrp/sbin/libext2_profile.so 755 0 0
+file /twrp/sbin/libext2_uuid.so source/usr/galaxy_ramdisk2/twrp/sbin/libext2_uuid.so 755 0 0
+file /twrp/sbin/libext2fs.so source/usr/galaxy_ramdisk2/twrp/sbin/libext2fs.so 755 0 0
+file /twrp/sbin/libext4_utils.so source/usr/galaxy_ramdisk2/twrp/sbin/libext4_utils.so 755 0 0
+file /twrp/sbin/libflashutils.so source/usr/galaxy_ramdisk2/twrp/sbin/libflashutils.so 755 0 0
+file /twrp/sbin/liblog.so source/usr/galaxy_ramdisk2/twrp/sbin/liblog.so 755 0 0
+file /twrp/sbin/libm.so source/usr/galaxy_ramdisk2/twrp/sbin/libm.so 755 0 0
+file /twrp/sbin/libmincrypt.so source/usr/galaxy_ramdisk2/twrp/sbin/libmincrypt.so 755 0 0
+file /twrp/sbin/libmmcutils.so source/usr/galaxy_ramdisk2/twrp/sbin/libmmcutils.so 755 0 0
+file /twrp/sbin/libsparse.so source/usr/galaxy_ramdisk2/twrp/sbin/libsparse.so 755 0 0
+file /twrp/sbin/libstdc++.so source/usr/galaxy_ramdisk2/twrp/sbin/libstdc++.so 755 0 0
+file /twrp/sbin/libstlport.so source/usr/galaxy_ramdisk2/twrp/sbin/libstlport.so 755 0 0
+file /twrp/sbin/libtar.so source/usr/galaxy_ramdisk2/twrp/sbin/libtar.so 755 0 0
+file /twrp/sbin/libz.so source/usr/galaxy_ramdisk2/twrp/sbin/libz.so 755 0 0
+file /twrp/sbin/linker source/usr/galaxy_ramdisk2/twrp/sbin/linker 755 0 0
+file /twrp/sbin/ln source/usr/galaxy_ramdisk2/twrp/sbin/ln 755 0 0
+file /twrp/sbin/losetup source/usr/galaxy_ramdisk2/twrp/sbin/losetup 755 0 0
+file /twrp/sbin/ls source/usr/galaxy_ramdisk2/twrp/sbin/ls 755 0 0
+file /twrp/sbin/lsattr source/usr/galaxy_ramdisk2/twrp/sbin/lsattr 755 0 0
+file /twrp/sbin/lsmod source/usr/galaxy_ramdisk2/twrp/sbin/lsmod 755 0 0
+file /twrp/sbin/lsusb source/usr/galaxy_ramdisk2/twrp/sbin/lsusb 755 0 0
+file /twrp/sbin/lzcat source/usr/galaxy_ramdisk2/twrp/sbin/lzcat 755 0 0
+file /twrp/sbin/lzma source/usr/galaxy_ramdisk2/twrp/sbin/lzma 755 0 0
+file /twrp/sbin/lzop source/usr/galaxy_ramdisk2/twrp/sbin/lzop 755 0 0
+file /twrp/sbin/lzopcat source/usr/galaxy_ramdisk2/twrp/sbin/lzopcat 755 0 0
+file /twrp/sbin/make_ext4fs source/usr/galaxy_ramdisk2/twrp/sbin/make_ext4fs 755 0 0
+file /twrp/sbin/man source/usr/galaxy_ramdisk2/twrp/sbin/man 755 0 0
+file /twrp/sbin/md5sum source/usr/galaxy_ramdisk2/twrp/sbin/md5sum 755 0 0
+file /twrp/sbin/mesg source/usr/galaxy_ramdisk2/twrp/sbin/mesg 755 0 0
+file /twrp/sbin/mkdir source/usr/galaxy_ramdisk2/twrp/sbin/mkdir 755 0 0
+file /twrp/sbin/mkdosfs source/usr/galaxy_ramdisk2/twrp/sbin/mkdosfs 755 0 0
+file /twrp/sbin/mke2fs source/usr/galaxy_ramdisk2/twrp/sbin/mke2fs 755 0 0
+file /twrp/sbin/mkexfatfs source/usr/galaxy_ramdisk2/twrp/sbin/mkexfatfs 755 0 0
+file /twrp/sbin/mkfifo source/usr/galaxy_ramdisk2/twrp/sbin/mkfifo 755 0 0
+file /twrp/sbin/mkfs.ext2 source/usr/galaxy_ramdisk2/twrp/sbin/mkfs.ext2 755 0 0
+file /twrp/sbin/mkfs.vfat source/usr/galaxy_ramdisk2/twrp/sbin/mkfs.vfat 755 0 0
+file /twrp/sbin/mknod source/usr/galaxy_ramdisk2/twrp/sbin/mknod 755 0 0
+file /twrp/sbin/mkswap source/usr/galaxy_ramdisk2/twrp/sbin/mkswap 755 0 0
+file /twrp/sbin/mktemp source/usr/galaxy_ramdisk2/twrp/sbin/mktemp 755 0 0
+file /twrp/sbin/modinfo source/usr/galaxy_ramdisk2/twrp/sbin/modinfo 755 0 0
+file /twrp/sbin/modprobe source/usr/galaxy_ramdisk2/twrp/sbin/modprobe 755 0 0
+file /twrp/sbin/more source/usr/galaxy_ramdisk2/twrp/sbin/more 755 0 0
+file /twrp/sbin/mount source/usr/galaxy_ramdisk2/twrp/sbin/mount 755 0 0
+file /twrp/sbin/mountpoint source/usr/galaxy_ramdisk2/twrp/sbin/mountpoint 755 0 0
+file /twrp/sbin/mpstat source/usr/galaxy_ramdisk2/twrp/sbin/mpstat 755 0 0
+file /twrp/sbin/mv source/usr/galaxy_ramdisk2/twrp/sbin/mv 755 0 0
+file /twrp/sbin/nanddump source/usr/galaxy_ramdisk2/twrp/sbin/nanddump 755 0 0
+file /twrp/sbin/nandwrite source/usr/galaxy_ramdisk2/twrp/sbin/nandwrite 755 0 0
+file /twrp/sbin/nbd-client source/usr/galaxy_ramdisk2/twrp/sbin/nbd-client 755 0 0
+file /twrp/sbin/nc source/usr/galaxy_ramdisk2/twrp/sbin/nc 755 0 0
+file /twrp/sbin/netstat source/usr/galaxy_ramdisk2/twrp/sbin/netstat 755 0 0
+file /twrp/sbin/nice source/usr/galaxy_ramdisk2/twrp/sbin/nice 755 0 0
+file /twrp/sbin/nohup source/usr/galaxy_ramdisk2/twrp/sbin/nohup 755 0 0
+file /twrp/sbin/nslookup source/usr/galaxy_ramdisk2/twrp/sbin/nslookup 755 0 0
+file /twrp/sbin/ntpd source/usr/galaxy_ramdisk2/twrp/sbin/ntpd 755 0 0
+file /twrp/sbin/od source/usr/galaxy_ramdisk2/twrp/sbin/od 755 0 0
+file /twrp/sbin/parted source/usr/galaxy_ramdisk2/twrp/sbin/parted 755 0 0
+file /twrp/sbin/patch source/usr/galaxy_ramdisk2/twrp/sbin/patch 755 0 0
+file /twrp/sbin/pgrep source/usr/galaxy_ramdisk2/twrp/sbin/pgrep 755 0 0
+file /twrp/sbin/pidof source/usr/galaxy_ramdisk2/twrp/sbin/pidof 755 0 0
+file /twrp/sbin/pigz source/usr/galaxy_ramdisk2/twrp/sbin/pigz 755 0 0
+file /twrp/sbin/ping source/usr/galaxy_ramdisk2/twrp/sbin/ping 755 0 0
+file /twrp/sbin/pipe_progress source/usr/galaxy_ramdisk2/twrp/sbin/pipe_progress 755 0 0
+file /twrp/sbin/pkill source/usr/galaxy_ramdisk2/twrp/sbin/pkill 755 0 0
+file /twrp/sbin/pmap source/usr/galaxy_ramdisk2/twrp/sbin/pmap 755 0 0
+file /twrp/sbin/poweroff source/usr/galaxy_ramdisk2/twrp/sbin/poweroff 755 0 0
+file /twrp/sbin/printenv source/usr/galaxy_ramdisk2/twrp/sbin/printenv 755 0 0
+file /twrp/sbin/printf source/usr/galaxy_ramdisk2/twrp/sbin/printf 755 0 0
+file /twrp/sbin/ps source/usr/galaxy_ramdisk2/twrp/sbin/ps 755 0 0
+file /twrp/sbin/pstree source/usr/galaxy_ramdisk2/twrp/sbin/pstree 755 0 0
+file /twrp/sbin/pwd source/usr/galaxy_ramdisk2/twrp/sbin/pwd 755 0 0
+file /twrp/sbin/pwdx source/usr/galaxy_ramdisk2/twrp/sbin/pwdx 755 0 0
+file /twrp/sbin/rdev source/usr/galaxy_ramdisk2/twrp/sbin/rdev 755 0 0
+file /twrp/sbin/readlink source/usr/galaxy_ramdisk2/twrp/sbin/readlink 755 0 0
+file /twrp/sbin/realpath source/usr/galaxy_ramdisk2/twrp/sbin/realpath 755 0 0
+file /twrp/sbin/recovery source/usr/galaxy_ramdisk2/twrp/sbin/recovery 755 0 0
+file /twrp/sbin/renice source/usr/galaxy_ramdisk2/twrp/sbin/renice 755 0 0
+file /twrp/sbin/reset source/usr/galaxy_ramdisk2/twrp/sbin/reset 755 0 0
+file /twrp/sbin/resize source/usr/galaxy_ramdisk2/twrp/sbin/resize 755 0 0
+file /twrp/sbin/rev source/usr/galaxy_ramdisk2/twrp/sbin/rev 755 0 0
+file /twrp/sbin/rm source/usr/galaxy_ramdisk2/twrp/sbin/rm 755 0 0
+file /twrp/sbin/rmdir source/usr/galaxy_ramdisk2/twrp/sbin/rmdir 755 0 0
+file /twrp/sbin/rmmod source/usr/galaxy_ramdisk2/twrp/sbin/rmmod 755 0 0
+file /twrp/sbin/route source/usr/galaxy_ramdisk2/twrp/sbin/route 755 0 0
+file /twrp/sbin/run-parts source/usr/galaxy_ramdisk2/twrp/sbin/run-parts 755 0 0
+file /twrp/sbin/rx source/usr/galaxy_ramdisk2/twrp/sbin/rx 755 0 0
+file /twrp/sbin/sed source/usr/galaxy_ramdisk2/twrp/sbin/sed 755 0 0
+file /twrp/sbin/seq source/usr/galaxy_ramdisk2/twrp/sbin/seq 755 0 0
+file /twrp/sbin/setconsole source/usr/galaxy_ramdisk2/twrp/sbin/setconsole 755 0 0
+file /twrp/sbin/setserial source/usr/galaxy_ramdisk2/twrp/sbin/setserial 755 0 0
+file /twrp/sbin/setsid source/usr/galaxy_ramdisk2/twrp/sbin/setsid 755 0 0
+file /twrp/sbin/setupdatadata.sh source/usr/galaxy_ramdisk2/twrp/sbin/setupdatadata.sh 755 0 0
+file /twrp/sbin/sh source/usr/galaxy_ramdisk2/twrp/sbin/sh 755 0 0
+file /twrp/sbin/sha1sum source/usr/galaxy_ramdisk2/twrp/sbin/sha1sum 755 0 0
+file /twrp/sbin/sha256sum source/usr/galaxy_ramdisk2/twrp/sbin/sha256sum 755 0 0
+file /twrp/sbin/sha3sum source/usr/galaxy_ramdisk2/twrp/sbin/sha3sum 755 0 0
+file /twrp/sbin/sha512sum source/usr/galaxy_ramdisk2/twrp/sbin/sha512sum 755 0 0
+file /twrp/sbin/sleep source/usr/galaxy_ramdisk2/twrp/sbin/sleep 755 0 0
+file /twrp/sbin/sort source/usr/galaxy_ramdisk2/twrp/sbin/sort 755 0 0
+file /twrp/sbin/split source/usr/galaxy_ramdisk2/twrp/sbin/split 755 0 0
+file /twrp/sbin/stat source/usr/galaxy_ramdisk2/twrp/sbin/stat 755 0 0
+file /twrp/sbin/strings source/usr/galaxy_ramdisk2/twrp/sbin/strings 755 0 0
+file /twrp/sbin/stty source/usr/galaxy_ramdisk2/twrp/sbin/stty 755 0 0
+file /twrp/sbin/sum source/usr/galaxy_ramdisk2/twrp/sbin/sum 755 0 0
+file /twrp/sbin/swapoff source/usr/galaxy_ramdisk2/twrp/sbin/swapoff 755 0 0
+file /twrp/sbin/swapon source/usr/galaxy_ramdisk2/twrp/sbin/swapon 755 0 0
+file /twrp/sbin/sync source/usr/galaxy_ramdisk2/twrp/sbin/sync 755 0 0
+file /twrp/sbin/sysctl source/usr/galaxy_ramdisk2/twrp/sbin/sysctl 755 0 0
+file /twrp/sbin/tac source/usr/galaxy_ramdisk2/twrp/sbin/tac 755 0 0
+file /twrp/sbin/tail source/usr/galaxy_ramdisk2/twrp/sbin/tail 755 0 0
+file /twrp/sbin/tar source/usr/galaxy_ramdisk2/twrp/sbin/tar 755 0 0
+file /twrp/sbin/taskset source/usr/galaxy_ramdisk2/twrp/sbin/taskset 755 0 0
+file /twrp/sbin/teamwin source/usr/galaxy_ramdisk2/twrp/sbin/teamwin 755 0 0
+file /twrp/sbin/tee source/usr/galaxy_ramdisk2/twrp/sbin/tee 755 0 0
+file /twrp/sbin/telnet source/usr/galaxy_ramdisk2/twrp/sbin/telnet 755 0 0
+file /twrp/sbin/telnetd source/usr/galaxy_ramdisk2/twrp/sbin/telnetd 755 0 0
+file /twrp/sbin/test source/usr/galaxy_ramdisk2/twrp/sbin/test 755 0 0
+file /twrp/sbin/tftp source/usr/galaxy_ramdisk2/twrp/sbin/tftp 755 0 0
+file /twrp/sbin/tftpd source/usr/galaxy_ramdisk2/twrp/sbin/tftpd 755 0 0
+file /twrp/sbin/time source/usr/galaxy_ramdisk2/twrp/sbin/time 755 0 0
+file /twrp/sbin/timeout source/usr/galaxy_ramdisk2/twrp/sbin/timeout 755 0 0
+file /twrp/sbin/top source/usr/galaxy_ramdisk2/twrp/sbin/top 755 0 0
+file /twrp/sbin/touch source/usr/galaxy_ramdisk2/twrp/sbin/touch 755 0 0
+file /twrp/sbin/tr source/usr/galaxy_ramdisk2/twrp/sbin/tr 755 0 0
+file /twrp/sbin/traceroute source/usr/galaxy_ramdisk2/twrp/sbin/traceroute 755 0 0
+file /twrp/sbin/true source/usr/galaxy_ramdisk2/twrp/sbin/true 755 0 0
+file /twrp/sbin/ttysize source/usr/galaxy_ramdisk2/twrp/sbin/ttysize 755 0 0
+file /twrp/sbin/tune2fs source/usr/galaxy_ramdisk2/twrp/sbin/tune2fs 755 0 0
+file /twrp/sbin/ueventd source/usr/galaxy_ramdisk2/twrp/sbin/ueventd 755 0 0
+file /twrp/sbin/umount source/usr/galaxy_ramdisk2/twrp/sbin/umount 755 0 0
+file /twrp/sbin/uname source/usr/galaxy_ramdisk2/twrp/sbin/uname 755 0 0
+file /twrp/sbin/uncompress source/usr/galaxy_ramdisk2/twrp/sbin/uncompress 755 0 0
+file /twrp/sbin/unexpand source/usr/galaxy_ramdisk2/twrp/sbin/unexpand 755 0 0
+file /twrp/sbin/uniq source/usr/galaxy_ramdisk2/twrp/sbin/uniq 755 0 0
+file /twrp/sbin/unix2dos source/usr/galaxy_ramdisk2/twrp/sbin/unix2dos 755 0 0
+file /twrp/sbin/unlzma source/usr/galaxy_ramdisk2/twrp/sbin/unlzma 755 0 0
+file /twrp/sbin/unlzop source/usr/galaxy_ramdisk2/twrp/sbin/unlzop 755 0 0
+file /twrp/sbin/unpigz source/usr/galaxy_ramdisk2/twrp/sbin/unpigz 755 0 0
+file /twrp/sbin/unxz source/usr/galaxy_ramdisk2/twrp/sbin/unxz 755 0 0
+file /twrp/sbin/unzip source/usr/galaxy_ramdisk2/twrp/sbin/unzip 755 0 0
+file /twrp/sbin/uptime source/usr/galaxy_ramdisk2/twrp/sbin/uptime 755 0 0
+file /twrp/sbin/usleep source/usr/galaxy_ramdisk2/twrp/sbin/usleep 755 0 0
+file /twrp/sbin/uudecode source/usr/galaxy_ramdisk2/twrp/sbin/uudecode 755 0 0
+file /twrp/sbin/uuencode source/usr/galaxy_ramdisk2/twrp/sbin/uuencode 755 0 0
+file /twrp/sbin/vi source/usr/galaxy_ramdisk2/twrp/sbin/vi 755 0 0
+file /twrp/sbin/watch source/usr/galaxy_ramdisk2/twrp/sbin/watch 755 0 0
+file /twrp/sbin/watchdogd source/usr/galaxy_ramdisk2/twrp/sbin/watchdogd 755 0 0
+file /twrp/sbin/wc source/usr/galaxy_ramdisk2/twrp/sbin/wc 755 0 0
+file /twrp/sbin/wget source/usr/galaxy_ramdisk2/twrp/sbin/wget 755 0 0
+file /twrp/sbin/which source/usr/galaxy_ramdisk2/twrp/sbin/which 755 0 0
+file /twrp/sbin/whoami source/usr/galaxy_ramdisk2/twrp/sbin/whoami 755 0 0
+file /twrp/sbin/xargs source/usr/galaxy_ramdisk2/twrp/sbin/xargs 755 0 0
+file /twrp/sbin/xz source/usr/galaxy_ramdisk2/twrp/sbin/xz 755 0 0
+file /twrp/sbin/xzcat source/usr/galaxy_ramdisk2/twrp/sbin/xzcat 755 0 0
+file /twrp/sbin/yes source/usr/galaxy_ramdisk2/twrp/sbin/yes 755 0 0
+file /twrp/sbin/zcat source/usr/galaxy_ramdisk2/twrp/sbin/zcat 755 0 0
+file /twrp/supersu/Superuser.apk source/usr/galaxy_ramdisk2/twrp/supersu/Superuser.apk 755 0 0
+file /twrp/supersu/su source/usr/galaxy_ramdisk2/twrp/supersu/su 755 0 0
+file /twrp/ueventd.aries.rc source/usr/galaxy_ramdisk2/twrp/ueventd.aries.rc 755 0 0
+file /twrp/ueventd.goldfish.rc source/usr/galaxy_ramdisk2/twrp/ueventd.goldfish.rc 755 0 0
+file /twrp/ueventd.rc source/usr/galaxy_ramdisk2/twrp/ueventd.rc 755 0 0
+file /twrp/usb.rc source/usr/galaxy_ramdisk2/twrp/usb.rc 755 0 0
