@@ -41,6 +41,7 @@ dir /cache 755 0 0
 dir /sdcard 755 0 0
 dir /stage1 755 0 0
 dir /sys 755 0 0
+dir /files 755 0 0
 dir /hw 755 0 0
 dir /lvm 755 0 0
 dir /lvm/etc 755 0 0
@@ -56,6 +57,7 @@ dir /cwm/res 755 0 0
 dir /cwm/res/images 755 0 0
 dir /cwm/res/images/charger 755 0 0
 dir /cwm/sbin 755 0 0
+dir /cwm/tmp 755 0 0
 dir /twrp 755 0 0
 dir /twrp/etc 755 0 0
 dir /twrp/res 755 0 0
@@ -65,15 +67,13 @@ dir /twrp/res/images/charger 755 0 0
 dir /twrp/sbin 755 0 0
 dir /twrp/supersu 755 0 0
 #basefiles
-file /stage1/busybox source/usr/galaxy_ramdisk2/busybox 755 0 0
 file /stage1/init source/usr/galaxy_ramdisk2/init 755 0 0
-file /stage1/erase_image source/usr/galaxy_ramdisk2/erase_image 755 0 0
 file /hw/lights.aries.so.bln source/usr/galaxy_ramdisk2/hw/lights.aries.so.bln 755 0 0
 file /hw/lights.aries.so.cm source/usr/galaxy_ramdisk2/hw/lights.aries.so.cm 755 0 0
 file /lvm/etc/lvm.conf source/usr/galaxy_ramdisk2/lvm/etc/lvm.conf 755 0 0
 file /lvm/sbin/lvm source/usr/galaxy_ramdisk2/lvm/sbin/lvm 755 0 0
+file /files/charger source/usr/galaxy_ramdisk2/files/charger 755 0 0
 #ramdisk
-file /rom_boot/charger source/usr/galaxy_ramdisk2/rom_boot/charger 755 0 0
 file /rom_boot/default.prop source/usr/galaxy_ramdisk2/rom_boot/default.prop 755 0 0
 file /rom_boot/fstab.aries source/usr/galaxy_ramdisk2/rom_boot/fstab.aries 755 0 0
 file /rom_boot/init source/usr/galaxy_ramdisk2/rom_boot/init 755 0 0
@@ -102,7 +102,6 @@ file /rom_boot/ueventd.aries.rc source/usr/galaxy_ramdisk2/rom_boot/ueventd.arie
 file /rom_boot/ueventd.goldfish.rc source/usr/galaxy_ramdisk2/rom_boot/ueventd.goldfish.rc 755 0 0
 file /rom_boot/ueventd.rc source/usr/galaxy_ramdisk2/rom_boot/ueventd.rc 755 0 0
 #cwm recovery
-file /cwm/charger source/usr/galaxy_ramdisk2/cwm/charger 755 0 0
 file /cwm/default.prop source/usr/galaxy_ramdisk2/cwm/default.prop 755 0 0
 file /cwm/etc/recovery.fstab source/usr/galaxy_ramdisk2/cwm/etc/recovery.fstab 755 0 0
 file /cwm/fstab.aries source/usr/galaxy_ramdisk2/cwm/fstab.aries 755 0 0
@@ -333,8 +332,9 @@ file /cwm/ueventd.aries.rc source/usr/galaxy_ramdisk2/cwm/ueventd.aries.rc 755 0
 file /cwm/ueventd.goldfish.rc source/usr/galaxy_ramdisk2/cwm/ueventd.goldfish.rc 755 0 0
 file /cwm/ueventd.rc source/usr/galaxy_ramdisk2/cwm/ueventd.rc 755 0 0
 file /cwm/usb.rc source/usr/galaxy_ramdisk2/cwm/usb.rc 755 0 0
+file /cwm/tmp/aromafm.zip source/usr/galaxy_ramdisk2/cwm/tmp/aromafm.zip 755 0 0
+file /cwm/tmp/aromafm.zip.cfg source/usr/galaxy_ramdisk2/cwm/tmp/aromafm.zip.cfg 755 0 0
 #twrp recovery
-file /twrp/charger source/usr/galaxy_ramdisk2/twrp/charger 755 0 0
 file /twrp/default.prop source/usr/galaxy_ramdisk2/twrp/default.prop 755 0 0
 file /twrp/etc/mke2fs.conf source/usr/galaxy_ramdisk2/twrp/etc/mke2fs.conf 755 0 0
 file /twrp/etc/recovery.fstab source/usr/galaxy_ramdisk2/twrp/etc/recovery.fstab 755 0 0
