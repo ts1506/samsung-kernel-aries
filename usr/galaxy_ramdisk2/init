@@ -74,8 +74,6 @@ else
     busybox echo "lights.aries.so doesn't need to be updated"
 fi
 
-DEFAULTBOOT="regular"
-
 if busybox test -e /cache/.startrecovery || busybox grep -q bootmode=2 /proc/cmdline ; then
 	# recovery boot
 	busybox echo "Found recovery command, preparing boot..."
@@ -88,6 +86,12 @@ if busybox test -e /cache/.startrecovery || busybox grep -q bootmode=2 /proc/cmd
 		CHOSENRECOVERY="twrp"
 	fi
 	busybox echo "Chosen recovery is $CHOSENRECOVERY"
+
+	if busybox [ "$chosenrecovery" -eq 1 ]; then
+	busybox echo "Moving AromaFM to tmp folder"
+	busybox mkdir /tmp
+	busybox cp /system/mackay/* /tmp/
+	fi
 
 	# image=/stage1/ramdisk-recovery.img
 	busybox echo "Moving $CHOSENRECOVERY to /"
@@ -103,7 +107,7 @@ fi
 if busybox grep -q 1 /sys/class/power_supply/battery/charging_mode_booting ; then
 	# low power mode
 	busybox echo "Found charging_mode command"
-	busybox cp /lpm.rc .init.rc
+	busybox cp /lpm.rc /init.rc
 	busybox rm /init.aries.rc
 fi
 
@@ -114,11 +118,13 @@ busybox umount /proc
 busybox umount /system
 busybox cp /boot.txt /cache/
 busybox umount /cache
-busybox rm -rf /cwm
+#removing the additional file structure
 busybox rm -r /files
 busybox rm -r /hw
-busybox rm -rf /rom_boot
 busybox rm -r /sdcard
+#removing the ramdisks
+busybox rm -rf /rom_boot
+busybox rm -rf /cwm
 busybox rm -rf /twrp
 
 busybox date >>boot.txt
