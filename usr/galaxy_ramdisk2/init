@@ -1,9 +1,6 @@
-#!/cwm/sbin/busybox sh
+#!/stage1/busybox sh
 export _PATH="$PATH"
 export PATH=/stage1
-
-# set busybox location, save busybox as we will move directories
-/cwm/sbin/busybox cp /cwm/sbin/recovery /stage1/busybox
 
 busybox cd /
 busybox date >>boot.txt
@@ -11,7 +8,6 @@ exec >>boot.txt 2>&1
 busybox rm init
 busybox mount -t proc proc /proc
 busybox mount -t sysfs sysfs /sys
-busybox mv /files/charger /
 
 while ! busybox test -d /sys/dev/block/179:0 ; do
 	echo "Waiting for internal mmc..."
