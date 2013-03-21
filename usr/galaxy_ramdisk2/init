@@ -35,6 +35,13 @@ if busybox [ ! -f /data/local/mackay/chosenrecovery ]; then
     busybox chmod 666 /data/local/mackay/chosenrecovery
 fi
 
+if busybox [ ! -f /data/local/mackay/navbar ]; then 
+    busybox echo "Create recovery setting file"
+    busybox touch /data/local/mackay/navbar
+    busybox echo "0" >> /data/local/mackay/navbar
+    busybox chmod 666 /data/local/mackay/navbar
+fi
+
 if busybox [ ! -f /data/local/mackay/bln ]; then 
     busybox echo "Create LED setting file"
     busybox touch /data/local/mackay/bln
@@ -73,6 +80,16 @@ if busybox [ "$LEDCHOSEN" != "$LEDACTIVE" ]; then
 else
     busybox echo "lights.aries.so doesn't need to be updated"
 fi
+
+navbarsetting=`busybox cat /data/local/mackay/navbar`
+if busybox [ "$navbarsetting" -eq 1 ]; then
+	navbarchoice="0"
+else
+	navbarchoice="1"
+fi
+busybox sed "/qemu.hw.mainkeys/d" /system/build.prop > /system/build.prop2
+busybox mv /system/build.prop2 /system/build.prop
+busybox echo "qemu.hw.mainkeys=$navbarchoice" >> /system/build.prop
 
 if busybox test -e /cache/.startrecovery || busybox grep -q bootmode=2 /proc/cmdline ; then
 	# recovery boot
@@ -119,7 +136,6 @@ busybox umount /system
 busybox cp /boot.txt /cache/
 busybox umount /cache
 #removing the additional file structure
-busybox rm -r /files
 busybox rm -r /hw
 busybox rm -r /sdcard
 #removing the ramdisks
