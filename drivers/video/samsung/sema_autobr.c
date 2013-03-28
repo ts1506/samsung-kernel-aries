@@ -8,7 +8,6 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/workqueue.h>
@@ -56,6 +55,7 @@ static struct sema_ab_tuners {
 	unsigned short alpha;
 	unsigned short beta;
 	unsigned short norm;
+	unsigned short linear;
 } sa_tuners = {
 	.min_brightness = DEF_MIN_BRIGHTNESS,
 	.max_brightness = DEF_MAX_BRIGHTNESS,
@@ -66,6 +66,7 @@ static struct sema_ab_tuners {
 	.alpha  = DEF_ALPHA,
 	.beta   = NORM - DEF_ALPHA,
 	.norm   = NORM,
+	.linear = 1,
 };
 
 static void autobr_handler(struct work_struct *w);
@@ -221,6 +222,27 @@ static ssize_t store_block_fw(struct device *dev, struct device_attribute *attr,
 	return size;
 }
 
+static ssize_t show_linear(struct device *dev, struct device_attribute *attr,
+								char *buf)
+{
+	return sprintf(buf, "%u\n", sa_tuners.linear);
+}
+
+static ssize_t store_linear(struct device *dev, struct device_attribute *attr,
+						const char *buf, size_t size)
+{
+	unsigned short input;
+	int ret;
+
+	ret = sscanf(buf, "%hu", &input);
+	if (ret != 1 || input > 1)
+		return -EINVAL;
+
+	sa_tuners.linear = input;
+
+	return size;
+}
+
 static DEVICE_ATTR(current_br, S_IRUGO, show_current_br, NULL);
 static DEVICE_ATTR(min_brightness, S_IRUGO | S_IWUGO , show_min_brightness,
 							store_min_brightness);
@@ -232,6 +254,7 @@ static DEVICE_ATTR(max_lux, S_IRUGO | S_IWUGO , show_max_lux, store_max_lux);
 static DEVICE_ATTR(effect_delay_ms, S_IRUGO | S_IWUGO,
 			show_effect_delay_ms, store_effect_delay_ms);
 static DEVICE_ATTR(block_fw, S_IRUGO | S_IWUGO , show_block_fw, store_block_fw);
+static DEVICE_ATTR(linear, S_IRUGO | S_IWUGO , show_linear, store_linear);
 
 static struct attribute *sema_autobr_attributes[] = {
 	&dev_attr_current_br.attr,
@@ -241,6 +264,7 @@ static struct attribute *sema_autobr_attributes[] = {
 	&dev_attr_max_lux.attr,
 	&dev_attr_effect_delay_ms.attr,
 	&dev_attr_block_fw.attr,
+	&dev_attr_linear.attr,
 	NULL
 };
 
@@ -297,11 +321,20 @@ static void instant_update(void)
 static void autobr_handler(struct work_struct *w)
 {
 	int diff;
+	unsigned int adc;
 
 	/* Get the adc value from light sensor and
 	   normalize it to 0 - max_brightness scale */
-	sa_info.sum_update_br += ls_get_adcvalue() * sa_tuners.max_brightness /
-							sa_tuners.max_lux;
+	adc = ls_get_adcvalue();
+	pr_debug("%s: adcvalue: %u", __func__, adc);
+	if (sa_tuners.linear)
+		sa_info.sum_update_br += adc *
+				sa_tuners.max_brightness / sa_tuners.max_lux;
+	else {
+		/* adc = ls_get_adcvalue(); */
+		sa_info.sum_update_br += (adc * adc * sa_tuners.max_brightness)
+				/ (sa_tuners.max_lux * sa_tuners.max_lux);
+	}
 
 	if (++sa_info.cnt < 5)
 		goto NEXT_ITER;
