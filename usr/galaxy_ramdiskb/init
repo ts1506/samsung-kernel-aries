@@ -1,0 +1,149 @@
+#!/stage1/busybox sh
+export _PATH="$PATH"
+export PATH=/stage1
+
+busybox cd /
+busybox date >>boot.txt
+exec >>boot.txt 2>&1
+busybox rm init
+busybox mount -t proc proc /proc
+busybox mount -t sysfs sysfs /sys
+
+while ! busybox test -d /sys/dev/block/179:0 ; do
+	echo "Waiting for internal mmc..."
+	busybox sleep 1
+done
+
+/lvm/sbin/lvm vgscan --mknodes --ignorelockingfailure
+/lvm/sbin/lvm vgchange -aly --ignorelockingfailure
+
+busybox mount -t ext4 /dev/lvpool/system /system
+busybox mount -t ext4 /dev/lvpool/userdata /data
+busybox mount -t yaffs2 /dev/block/mtdblock3 /cache
+
+busybox mv /cache/boot.txt /cache/boot_old.txt
+
+if busybox [ ! -d /data/local/mackay ]; then 
+    busybox echo "making Mackay directory"
+    busybox mkdir /data/local/mackay
+fi
+
+if busybox [ ! -f /data/local/mackay/chosenrecovery ]; then 
+    busybox echo "Create recovery setting file"
+    busybox touch /data/local/mackay/chosenrecovery
+    busybox echo "0" >> /data/local/mackay/chosenrecovery
+    busybox chmod 666 /data/local/mackay/chosenrecovery
+fi
+
+if busybox [ ! -f /data/local/mackay/navbar ]; then 
+    busybox echo "Create recovery setting file"
+    busybox touch /data/local/mackay/navbar
+    busybox echo "0" >> /data/local/mackay/navbar
+    busybox chmod 666 /data/local/mackay/navbar
+fi
+
+if busybox [ ! -f /data/local/mackay/bln ]; then 
+    busybox echo "Create LED setting file"
+    busybox touch /data/local/mackay/bln
+    busybox echo "0" >> /data/local/mackay/bln
+    busybox chmod 666 /data/local/mackay/bln
+fi
+
+blnchoice=`busybox cat /data/local/mackay/bln`
+if busybox [ "$blnchoice" -eq 1 ]; then
+    LEDCHOSEN="BLN"
+else
+    LEDCHOSEN="CMLED"
+fi
+busybox echo "LED settings is $LEDCHOSEN"
+
+if busybox [ -f /data/local/mackay/blnactive ]; then
+    LEDACTIVE="BLN"
+else
+    LEDACTIVE="CMLED"
+fi
+busybox echo "Current active LED settings is $LEDACTIVE"
+
+if busybox [ "$LEDCHOSEN" != "$LEDACTIVE" ]; then
+    busybox echo "lights.aries.so needs to be updated"
+    if busybox [ "$blnchoice" -eq 1 ]; then
+        busybox echo "updating BLN lights.aries.so..."
+        busybox cp /hw/lights.aries.so.bln /system/lib/hw/lights.aries.so
+        busybox chmod 644 /system/lib/hw/lights.aries.so
+        busybox touch /data/local/mackay/blnactive
+    else
+        busybox echo "updating CM-led lights.aries.so..."
+        busybox cp /hw/lights.aries.so.cm /system/lib/hw/lights.aries.so
+        busybox chmod 644 /system/lib/hw/lights.aries.so
+        busybox rm /data/local/mackay/blnactive
+    fi
+else
+    busybox echo "lights.aries.so doesn't need to be updated"
+fi
+
+navbarsetting=`busybox cat /data/local/mackay/navbar`
+if busybox [ "$navbarsetting" -eq 1 ]; then
+	navbarchoice="0"
+else
+	navbarchoice="1"
+fi
+busybox sed "/qemu.hw.mainkeys/d" /system/build.prop > /system/build.prop2
+busybox mv /system/build.prop2 /system/build.prop
+busybox echo "qemu.hw.mainkeys=$navbarchoice" >> /system/build.prop
+
+if busybox test -e /cache/.startrecovery || busybox grep -q bootmode=2 /proc/cmdline ; then
+	# recovery boot
+	busybox echo "Found recovery command, preparing boot..."
+	busybox rm -fr /cache/.startrecovery
+
+	chosenrecovery=`busybox cat /data/local/mackay/chosenrecovery`
+	if busybox [ "$chosenrecovery" -eq 1 ]; then
+		CHOSENRECOVERY="cwm"
+	else
+		CHOSENRECOVERY="twrp"
+	fi
+	busybox echo "Chosen recovery is $CHOSENRECOVERY"
+
+	if busybox [ "$chosenrecovery" -eq 1 ]; then
+	busybox echo "Moving AromaFM to tmp folder"
+	busybox mkdir /tmp
+	busybox cp /system/mackay/* /tmp/
+	fi
+
+	# image=/stage1/ramdisk-recovery.img
+	busybox echo "Moving $CHOSENRECOVERY to /"
+	busybox mv /$CHOSENRECOVERY/* /
+
+	# disable lpm
+	busybox echo 0 > /sys/class/power_supply/battery/charging_mode_booting
+else
+	busybox echo "Regular boot"
+	busybox mv /rom_boot/* /
+fi
+
+if busybox grep -q 1 /sys/class/power_supply/battery/charging_mode_booting ; then
+	# low power mode
+	busybox echo "Found charging_mode command"
+	busybox cp /lpm.rc /init.rc
+	busybox rm /init.aries.rc
+fi
+
+busybox echo "cleaning up..."
+busybox umount /data
+busybox umount /sys
+busybox umount /proc
+busybox umount /system
+busybox cp /boot.txt /cache/
+busybox umount /cache
+#removing the additional file structure
+busybox rm -r /hw
+busybox rm -r /sdcard
+#removing the ramdisks
+busybox rm -rf /rom_boot
+busybox rm -rf /cwm
+busybox rm -rf /twrp
+
+busybox date >>boot.txt
+busybox rm -fr /stage1 /dev/*
+export PATH="${_PATH}"
+exec /init
