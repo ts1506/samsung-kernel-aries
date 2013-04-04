@@ -23,16 +23,12 @@ case "$1" in
             VER=""
 esac
 
-if [ "$2" = "s" ] ; then
-	BASE_SEMA_VER=$BASE_SEMA_VER"s"
-fi
-
-SEMA_VER=$BASE_SEMA_VER$VER
+SEMA_VER="CyanCore-v2.5.3"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $SEMA_VER`
 #export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.09-20120921_linux/bin/arm-linux-gnueabihf-
-export CROSS_COMPILE=../toolchain/arm-linux-gnueabihf-
+export CROSS_COMPILE=/home/ts1506/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux/bin/arm-linux-gnueabihf-
 export ARCH=arm
 
 echo 
@@ -57,10 +53,6 @@ echo "MODULES_DIR="$MODULES_DIR
 echo "KERNEL_DIR="$KERNEL_DIR
 echo "OUTPUT_DIR="$OUTPUT_DIR
 echo "CWM_DIR="$CWM_DIR
-
-if [ "$2" = "s" ] ; then
-        echo "CONFIG_S5P_HUGEMEM=y" >> .config
-fi
 
 
 
