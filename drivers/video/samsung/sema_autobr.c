@@ -75,7 +75,7 @@ DECLARE_DELAYED_WORK(ws, autobr_handler);
 static struct sema_ab_info {
 	unsigned int current_br;	/* holds the current brightness */
 	unsigned int update_br;/* the brightness value that we have to reach */
-	unsigned int sum_update_br;	/* the sum of samples */
+	unsigned int sum_update_adc;	/* the sum of samples */
 	unsigned int cnt;
 	unsigned int delay;
 	unsigned int old_br;
@@ -323,27 +323,32 @@ static void autobr_handler(struct work_struct *w)
 	int diff;
 	unsigned int adc;
 
-	/* Get the adc value from light sensor and
-	   normalize it to 0 - max_brightness scale */
 	adc = ls_get_adcvalue();
 	pr_debug("%s: adcvalue: %u", __func__, adc);
-	if (sa_tuners.linear)
-		sa_info.sum_update_br += adc *
-				sa_tuners.max_brightness / sa_tuners.max_lux;
-	else {
-		/* adc = ls_get_adcvalue(); */
-		sa_info.sum_update_br += (adc * adc * sa_tuners.max_brightness)
-				/ (sa_tuners.max_lux * sa_tuners.max_lux);
-	}
 
+	sa_info.sum_update_adc += adc;
 	if (++sa_info.cnt < 5)
 		goto NEXT_ITER;
 
 	/* Get the average after 5 samples and only then adjust the brightness*/
-	sa_info.update_br = sa_info.sum_update_br / 5;
+	sa_info.sum_update_adc = sa_info.sum_update_adc / 5;
+
+	/* Get the adc value from light sensor and
+	 * normalize it to 0 - max_brightness scale
+	 */
+	if (sa_tuners.linear)
+		sa_info.update_br = sa_info.sum_update_adc *
+				sa_tuners.max_brightness / sa_tuners.max_lux;
+	else
+		sa_info.update_br = (sa_info.sum_update_adc *
+				     sa_info.sum_update_adc *
+				     sa_tuners.max_brightness) /
+				(sa_tuners.max_lux * sa_tuners.max_lux);
+
 	pr_debug("%s: update_br: %u", __func__, sa_info.update_br);
 	pr_debug("%s: old_br: %u", __func__, sa_info.old_br);
 
+	/* Apply low pass filter */
 	sa_info.update_br = ((sa_tuners.alpha * sa_info.update_br) +
 			     (sa_tuners.beta * sa_info.old_br)) /
 			      sa_tuners.norm;
@@ -375,7 +380,7 @@ static void autobr_handler(struct work_struct *w)
 	pr_debug("%s: after current_br: %u", __func__, sa_info.current_br);
 
 	/* reset counters */
-	sa_info.sum_update_br = 0;
+	sa_info.sum_update_adc = 0;
 	sa_info.cnt = 0;
 
 NEXT_ITER:
