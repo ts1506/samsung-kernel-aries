@@ -8,6 +8,9 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
+
+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/workqueue.h>
@@ -18,12 +21,11 @@
 #include <linux/earlysuspend.h>
 #include "sema_autobr.h"
 
-/* #define AUTOBR_WORK "sema_autobr"*/
-
 #define DEF_MIN_BRIGHTNESS		(15)
 #define DEF_MAX_BRIGHTNESS		(255)
 #define DEF_INSTANT_UPD_THRESHOLD	(30)
 #define DEF_MAX_LUX			(2900)
+#define DEF_MAX_BR_THRESHOLD		(0)
 #define DEF_EFFECT_DELAY_MS		(0)
 #define DEF_BLOCK_FW			(1)
 #define DEF_ALPHA			(8)	/* between 1 - 9 */
@@ -50,6 +52,7 @@ static struct sema_ab_tuners {
 	unsigned short max_brightness;
 	unsigned short instant_upd_threshold;
 	unsigned short max_lux;
+	unsigned short max_br_threshold;
 	short effect_delay_ms;
 	unsigned short block_fw;
 	unsigned short alpha;
@@ -61,6 +64,7 @@ static struct sema_ab_tuners {
 	.max_brightness = DEF_MAX_BRIGHTNESS,
 	.instant_upd_threshold = DEF_INSTANT_UPD_THRESHOLD,
 	.max_lux = DEF_MAX_LUX,
+	.max_br_threshold = DEF_MAX_BR_THRESHOLD,
 	.effect_delay_ms = DEF_EFFECT_DELAY_MS,
 	.block_fw = DEF_BLOCK_FW,
 	.alpha  = DEF_ALPHA,
@@ -175,6 +179,27 @@ static ssize_t store_max_lux(struct device *dev, struct device_attribute *attr,
 	return size;
 }
 
+static ssize_t show_max_br_threshold(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%u\n", sa_tuners.max_br_threshold);
+}
+
+static ssize_t store_max_br_threshold(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned short input;
+	int ret;
+
+	ret = sscanf(buf, "%hu", &input);
+	if (ret != 1 || input < 1 || input > DRV_MAX_LUX)
+		return -EINVAL;
+
+	sa_tuners.max_br_threshold = input;
+
+	return size;
+}
+
 static ssize_t show_effect_delay_ms(struct device *dev,
 				    struct device_attribute *attr, char *buf)
 {
@@ -251,6 +276,8 @@ static DEVICE_ATTR(max_brightness, S_IRUGO | S_IWUGO , show_max_brightness,
 static DEVICE_ATTR(instant_upd_threshold, S_IRUGO | S_IWUGO,
 		show_instant_upd_threshold, store_instant_upd_threshold);
 static DEVICE_ATTR(max_lux, S_IRUGO | S_IWUGO , show_max_lux, store_max_lux);
+static DEVICE_ATTR(max_br_threshold, S_IRUGO | S_IWUGO , show_max_br_threshold,
+						store_max_br_threshold);
 static DEVICE_ATTR(effect_delay_ms, S_IRUGO | S_IWUGO,
 			show_effect_delay_ms, store_effect_delay_ms);
 static DEVICE_ATTR(block_fw, S_IRUGO | S_IWUGO , show_block_fw, store_block_fw);
@@ -262,6 +289,7 @@ static struct attribute *sema_autobr_attributes[] = {
 	&dev_attr_max_brightness.attr,
 	&dev_attr_instant_upd_threshold.attr,
 	&dev_attr_max_lux.attr,
+	&dev_attr_max_br_threshold.attr,
 	&dev_attr_effect_delay_ms.attr,
 	&dev_attr_block_fw.attr,
 	&dev_attr_linear.attr,
@@ -333,7 +361,15 @@ static void autobr_handler(struct work_struct *w)
 	/* Get the average after 5 samples and only then adjust the brightness*/
 	sa_info.sum_update_adc = sa_info.sum_update_adc / 5;
 
-	/* Get the adc value from light sensor and
+	/* Apply max brightness if adc greater than threshold */
+	if (sa_tuners.max_br_threshold &&
+	    sa_info.sum_update_adc > sa_tuners.max_br_threshold) {
+		sa_info.update_br = sa_tuners.max_brightness;
+		goto BYPASS;
+	}
+
+	/*
+	 * Get the adc value from light sensor and
 	 * normalize it to 0 - max_brightness scale
 	 */
 	if (sa_tuners.linear)
@@ -352,9 +388,11 @@ static void autobr_handler(struct work_struct *w)
 	sa_info.update_br = ((sa_tuners.alpha * sa_info.update_br) +
 			     (sa_tuners.beta * sa_info.old_br)) /
 			      sa_tuners.norm;
-	sa_info.old_br = sa_info.update_br;
-	pr_debug("%s: filtered update_br: %u", __func__, sa_info.update_br);
 
+BYPASS:
+	sa_info.old_br = sa_info.update_br;
+
+	pr_debug("%s: filtered update_br: %u", __func__, sa_info.update_br);
 	pr_debug("%s: update_br: %u, current_br: %u", __func__,
 		 sa_info.update_br, sa_info.current_br);
 
