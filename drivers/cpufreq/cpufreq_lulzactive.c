@@ -44,15 +44,6 @@
 
 static void (*pm_idle_old)(void);
 static atomic_t active_count = ATOMIC_INIT(0);
-#ifdef CONFIG_DEVIL_TWEAKS
-extern unsigned int touch_state_val;
-extern bool smooth_ui();
-extern unsigned long cpuL3freq();
-extern bool smooth_governors();
-extern bool powersave_governors();
-static int status;
-static int status_old;
-#endif
 
 struct cpufreq_lulzactive_cpuinfo {
 	struct timer_list cpu_timer;
@@ -84,7 +75,7 @@ static spinlock_t down_cpumask_lock;
 /*
  * The minimum amount of time to spend at a frequency before we can step up.
  */
-#define DEFAULT_UP_SAMPLE_TIME 25000
+#define DEFAULT_UP_SAMPLE_TIME 20000
 static unsigned long up_sample_time;
 
 #define DEFAULT_UP_SAMPLE_TIME_SLEEP 50000
@@ -115,7 +106,7 @@ enum {
 /*
  * CPU freq will be increased if measured load > inc_cpu_load;
  */
-#define DEFAULT_INC_CPU_LOAD 80
+#define DEFAULT_INC_CPU_LOAD 70
 static unsigned long inc_cpu_load;
 
 #define DEFAULT_INC_CPU_LOAD_SLEEP 95
@@ -140,7 +131,7 @@ static unsigned long pump_up_step;
  * Decreasing frequency table index
  * zero disables and will calculate frequency according to load heuristic.
  */
-#define DEFAULT_PUMP_DOWN_STEP 2
+#define DEFAULT_PUMP_DOWN_STEP 1
 static unsigned long pump_down_step;
 
 /*
@@ -150,7 +141,8 @@ static unsigned int suspending;
 static unsigned int early_suspended;
 
 #define SCREEN_OFF_LOWEST_STEP 		(0xffffffff)
-#define DEFAULT_SCREEN_OFF_MIN_STEP	(SCREEN_OFF_LOWEST_STEP)
+//#define DEFAULT_SCREEN_OFF_MIN_STEP	(SCREEN_OFF_LOWEST_STEP)
+#define DEFAULT_SCREEN_OFF_MIN_STEP	-4
 static unsigned long screen_off_min_step;
 
 #define DEBUG 0
@@ -303,47 +295,6 @@ static void cpufreq_lulzactive_timer(unsigned long data)
 	int index;
 	int ret;
 
-#ifdef CONFIG_DEVIL_TWEAKS
-/*
-* change governor settings (only once), if governor mode got changed
-*/
-if(smooth_governors()){
-	status= 1;
-	if(status != status_old){
-	up_sample_time = 15000;
-	down_sample_time = 50000;
-	inc_cpu_load = 60;
-	dec_cpu_load = 20;	
-	pump_up_step = 1;
-	pump_down_step = 1;
-	}
-}
-else if(powersave_governors()){
-	status= 2;
-	if(status != status_old){
-	up_sample_time = 40000;
-	down_sample_time = 40000;
-	inc_cpu_load = 90;
-	dec_cpu_load = 100;
-	pump_up_step = 1;
-	pump_down_step = 2;
-	}
-}
-else{
-	status= 0;
-	if(status != status_old){
-	up_sample_time = DEFAULT_UP_SAMPLE_TIME;
-	down_sample_time = DEFAULT_DOWN_SAMPLE_TIME;
-	inc_cpu_load = DEFAULT_INC_CPU_LOAD;
-	dec_cpu_load = DEFAULT_DEC_CPU_LOAD;
-	pump_up_step = DEFAULT_PUMP_UP_STEP;
-	pump_down_step = DEFAULT_PUMP_DOWN_STEP;
-	}
-}
-status_old = status;
-#endif
-	
-    
 	/*
 	 * Once pcpu->timer_run_time is updated to >= pcpu->idle_exit_time,
 	 * this lets idle exit know the current idle time sample has
@@ -415,22 +366,8 @@ status_old = status;
 	/* 
 	 * START lulzactive algorithm section
 	 */
-#ifdef CONFIG_DEVIL_TWEAKS
-	if (smooth_ui() && touch_state_val){
-		if(pcpu->policy->max <= cpuL3freq())
-		new_freq = pcpu->policy->max;
-		else if(pcpu->policy->cur < cpuL3freq())
-			new_freq = cpuL3freq();
-		else if(cpu_load >= 75)
-			new_freq = pcpu->policy->max;
-		else
-			new_freq = cpuL3freq();
-	}
 
-	else if (cpu_load >= inc_cpu_load) {
-#else
 	if (cpu_load >= inc_cpu_load) {
-#endif
 		if (pump_up_step && pcpu->policy->cur < pcpu->policy->max) {
 			ret = cpufreq_frequency_table_target(
                                                  pcpu->policy, pcpu->freq_table,
