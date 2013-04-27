@@ -219,14 +219,6 @@ rwsem_down_failed_common(struct rw_semaphore *sem,
 		if (!waiter.task)
 			break;
 
-		spin_lock_irq(&sem->wait_lock);
-		/* try to get the writer sem, may steal from the head writer */
-		if (flags == RWSEM_WAITING_FOR_WRITE)
-			if (try_get_writer_sem(sem, &waiter)) {
-				spin_unlock_irq(&sem->wait_lock);
-				return sem;
-			}
-		spin_unlock_irq(&sem->wait_lock);
 		raw_spin_lock_irq(&sem->wait_lock);
 		/* try to get the writer sem, may steal from the head writer */
 		if (flags == RWSEM_WAITING_FOR_WRITE)
@@ -305,4 +297,3 @@ EXPORT_SYMBOL(rwsem_down_read_failed);
 EXPORT_SYMBOL(rwsem_down_write_failed);
 EXPORT_SYMBOL(rwsem_wake);
 EXPORT_SYMBOL(rwsem_downgrade_wake);
-
