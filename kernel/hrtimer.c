@@ -225,8 +225,7 @@ again:
 
 		this_cpu = smp_processor_id();
 
-		if (cpu != this_cpu && (hrtimer_check_target(timer, new_base)
-			|| !cpu_online(cpu))) {
+		if (cpu != this_cpu && hrtimer_check_target(timer, new_base)) {
 			raw_spin_unlock(&new_base->cpu_base->lock);
 			raw_spin_lock(&base->cpu_base->lock);
 			cpu = smp_processor_id();
@@ -1883,3 +1882,4 @@ int __sched schedule_hrtimeout(ktime_t *expires,
 	return schedule_hrtimeout_range(expires, 0, mode);
 }
 EXPORT_SYMBOL_GPL(schedule_hrtimeout);
+
