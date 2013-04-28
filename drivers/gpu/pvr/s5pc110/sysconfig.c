@@ -35,7 +35,12 @@
 #include <linux/regulator/consumer.h>
 #include <linux/clk.h>
 #include <linux/err.h>
+
+#ifdef CONFIG_DVFS_LIMIT
+#include <mach/cpu-freq-v210.h>
+#else
 #include <linux/cpufreq.h>
+#endif
 
 #define REAL_HARDWARE 1
 #define SGX540_BASEADDR 0xf3000000
@@ -89,7 +94,11 @@ IMG_UINT32   PVRSRV_BridgeDispatchKM( IMG_UINT32  Ioctl,
  * In arch/arm/mach-s5pv210/cpufreq.c, the bus speed is only lowered when the
  * CPU freq is below 200MHz.
  */
+#ifdef CONFIG_DVFS_LIMIT
+#define MIN_CPU_LVL L3
+#else
 #define MIN_CPU_KHZ_FREQ 200000
+#endif
 
 static struct clk *g3d_clock;
 static struct regulator *g3d_pd_regulator;
@@ -98,6 +107,7 @@ static struct regulator *g3d_pd_regulator;
 extern unsigned long get_gpuminfreq(void);
 #endif
 
+#ifndef CONFIG_DVFS_LIMIT
 static int limit_adjust_cpufreq_notifier(struct notifier_block *nb,
 					 unsigned long event, void *data)
 {
@@ -122,12 +132,18 @@ static int limit_adjust_cpufreq_notifier(struct notifier_block *nb,
 static struct notifier_block cpufreq_limit_notifier = {
 	.notifier_call = limit_adjust_cpufreq_notifier,
 };
+#endif
 
 static PVRSRV_ERROR EnableSGXClocks(void)
 {
+#ifdef CONFIG_DVFS_LIMIT
+	s5pv210_lock_dvfs_high_level(DVFS_LOCK_TOKEN_10, MIN_CPU_LVL);
+#endif
 	regulator_enable(g3d_pd_regulator);
 	clk_enable(g3d_clock);
+#ifndef CONFIG_DVFS_LIMIT
 	cpufreq_update_policy(current_thread_info()->cpu);
+#endif
 
 	return PVRSRV_OK;
 }
@@ -136,7 +152,11 @@ static PVRSRV_ERROR DisableSGXClocks(void)
 {
 	clk_disable(g3d_clock);
 	regulator_disable(g3d_pd_regulator);
+#ifdef CONFIG_DVFS_LIMI
+	s5pv210_unlock_dvfs_high_level(DVFS_LOCK_TOKEN_10);
+#else
 	cpufreq_update_policy(current_thread_info()->cpu);
+#endif
 
 	return PVRSRV_OK;
 }
@@ -540,8 +560,10 @@ PVRSRV_ERROR SysFinalise(IMG_VOID)
 
 #if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
 	DisableSGXClocks();
+#ifndef CONFIG_DVFS_LIMIT
 	cpufreq_register_notifier(&cpufreq_limit_notifier,
 				  CPUFREQ_POLICY_NOTIFIER);
+#endif
 #endif 
 
 	return PVRSRV_OK;
@@ -571,10 +593,14 @@ PVRSRV_ERROR SysDeinitialise (SYS_DATA *psSysData)
 	psSysSpecData = (SYS_SPECIFIC_DATA *) psSysData->pvSysSpecificData;
 
 #if defined(SUPPORT_ACTIVE_POWER_MANAGEMENT)
+#ifdef CONFIG_DVFS_LIMIT
+	s5pv210_unlock_dvfs_high_level(DVFS_LOCK_TOKEN_10);
+#else
 	/* TODO: regulator and clk put. */
 	cpufreq_unregister_notifier(&cpufreq_limit_notifier,
 				    CPUFREQ_POLICY_NOTIFIER);
 	cpufreq_update_policy(current_thread_info()->cpu);
+#endif
 #endif
 
 #if defined(SYS_USING_INTERRUPTS)
