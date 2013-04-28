@@ -23,12 +23,12 @@ case "$1" in
             VER=""
 esac
 
-SEMA_VER="CyanCore-v2.5.3"
+SEMA_VER="CyanCore-v2.5.5"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $SEMA_VER`
 #export CROSS_COMPILE=/opt/toolchains/gcc-linaro-arm-linux-gnueabihf-2012.09-20120921_linux/bin/arm-linux-gnueabihf-
-export CROSS_COMPILE=/home/ts1506/gcc-linaro-arm-linux-gnueabihf-4.8-2013.04-20130417_linux/bin/arm-linux-gnueabihf-
+export CROSS_COMPILE=/home/ts1506/gcc-linaro-arm-linux-gnueabihf-4.7-2013.02-01-20130221_linux/bin/arm-linux-gnueabihf-
 export ARCH=arm
 
 echo 
