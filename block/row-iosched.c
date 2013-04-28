@@ -62,7 +62,7 @@ static const bool queue_idling_enabled[] = {
 static const int queue_quantum[] = {
 	100,	/* ROWQ_PRIO_HIGH_READ */
 	75,	/* ROWQ_PRIO_REG_READ */
-	4,	/* ROWQ_PRIO_HIGH_SWRITE */
+	5,	/* ROWQ_PRIO_HIGH_SWRITE */
 	4,	/* ROWQ_PRIO_REG_SWRITE */
 	4,	/* ROWQ_PRIO_REG_WRITE */
 	3,	/* ROWQ_PRIO_LOW_READ */
