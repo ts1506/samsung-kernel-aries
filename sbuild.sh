@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.9.23"
+BASE_SEMA_VER="Semaphore_JB_2.9.24"
 
 case "$1" in
         galaxys)
@@ -23,7 +23,7 @@ case "$1" in
             VER=""
 esac
 
-SEMA_VER="CyanCore-v2.6"
+SEMA_VER="CyanCore-v2.6.1"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $SEMA_VER`
