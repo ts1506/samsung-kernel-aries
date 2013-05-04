@@ -171,7 +171,7 @@ static ssize_t store_max_lux(struct device *dev, struct device_attribute *attr,
 	int ret;
 
 	ret = sscanf(buf, "%hu", &input);
-	if (ret != 1 || input < 1 || input > DRV_MAX_LUX)
+	if (ret != 1 || input < 1 || input > (DRV_MAX_LUX + 1000))
 		return -EINVAL;
 
 	sa_tuners.max_lux = input;
