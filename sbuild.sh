@@ -23,7 +23,7 @@ case "$1" in
             VER=""
 esac
 
-SEMA_VER="CyanCore-v2.6.35"
+SEMA_VER="CyanCore-v2.6.4"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $SEMA_VER`
