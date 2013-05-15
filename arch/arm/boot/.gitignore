@@ -3,3 +3,5 @@ zImage
 xipImage
 bootpImage
 uImage
+piggy.xzkern
+ashldi3.S
