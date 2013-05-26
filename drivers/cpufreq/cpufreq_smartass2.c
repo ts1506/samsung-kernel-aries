@@ -45,7 +45,7 @@ extern unsigned long get_cpuminfreq(void);
  * towards the ideal frequency and slower after it has passed it. Similarly,
  * lowering the frequency towards the ideal frequency is faster than below it.
  */
-#define DEFAULT_AWAKE_IDEAL_FREQ (800*1000)
+#define DEFAULT_AWAKE_IDEAL_FREQ (1000*1000)
 static unsigned int awake_ideal_freq;
 
 /*
