@@ -31,6 +31,12 @@ config IOSCHED_ROW
 	  according to queue priority.
 	  Most suitable for mobile devices.
 
+config IOSCHED_FIFO
+	bool
+	default y
+	---help---
+	  A no-op scheduler that really does nothing.
+
 config IOSCHED_CFQ
 	tristate "CFQ I/O scheduler"
 	# If BLK_CGROUP is a module, CFQ has to be built as module.
@@ -89,6 +95,9 @@ choice
 	config DEFAULT_NOOP
 		bool "No-op"
 
+	config DEFAULT_FIFO
+		bool "fifo"
+
 endchoice
 
 config DEFAULT_IOSCHED
@@ -98,6 +107,7 @@ config DEFAULT_IOSCHED
 	default "cfq" if DEFAULT_CFQ
 	default "noop" if DEFAULT_NOOP
 	default "sio" if DEFAULT_SIO
+	default "fifo" if DEFAULT_FIFO
 endmenu
 
 endif
