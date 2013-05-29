@@ -106,10 +106,10 @@ enum {
 /*
  * CPU freq will be increased if measured load > inc_cpu_load;
  */
-#define DEFAULT_INC_CPU_LOAD 70
+#define DEFAULT_INC_CPU_LOAD 65
 static unsigned long inc_cpu_load;
 
-#define DEFAULT_INC_CPU_LOAD_SLEEP 95
+#define DEFAULT_INC_CPU_LOAD_SLEEP 85
 static unsigned long inc_cpu_load_awake;
 
 /*
@@ -124,7 +124,7 @@ static unsigned long dec_cpu_load_awake;
  * Increasing frequency table index
  * zero disables and causes to always jump straight to max frequency.
  */
-#define DEFAULT_PUMP_UP_STEP 1
+#define DEFAULT_PUMP_UP_STEP 2
 static unsigned long pump_up_step;
 
 /*
