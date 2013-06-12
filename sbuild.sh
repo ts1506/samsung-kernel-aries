@@ -63,15 +63,15 @@ chmod 644 `echo $MODULES_DIR"/*"`
 make -j16 zImage
 
 cd arch/arm/boot
-tar cvf `echo $SEMA_VER`.tar zImage
-mv `echo $SEMA_VER`.tar ../../../$OUTPUT_DIR$VARIANT
+tar cvf `echo $CYAN_VER`.tar zImage
+mv `echo $CYAN_VER`.tar ../../../$OUTPUT_DIR$VARIANT
 echo "Moving to "$OUTPUT_DIR$VARIANT"/"
 cd ../../../
 
 cp arch/arm/boot/zImage $CWM_DIR"boot.img"
 cd $CWM_DIR
-zip -r `echo $SEMA_VER`.zip *
-mv  `echo $SEMA_VER`.zip ../$OUTPUT_DIR$VARIANT"/"
+zip -r `echo $CYAN_VER`.zip *
+mv  `echo $CYAN_VER`.zip ../$OUTPUT_DIR$VARIANT"/"
 
 DATE_END=$(date +"%s")
 echo
