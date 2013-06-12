@@ -1,7 +1,5 @@
 #!/bin/bash
 
-BASE_SEMA_VER="Semaphore_JB_2.9.25"
-
 case "$1" in
         galaxys)
             VARIANT="galaxys"
@@ -23,20 +21,20 @@ case "$1" in
             VER=""
 esac
 
-SEMA_VER="CyanCore-v2.7.0"
+CYAN_VER="CyanCore-v2.7.0"
 
 #export KBUILD_BUILD_VERSION="2"
-export LOCALVERSION="-"`echo $SEMA_VER`
+export LOCALVERSION="-"`echo $CYAN_VER`
 #export CROSS_COMPILE=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux/bin/arm-linux-gnueabihf-
 export CROSS_COMPILE=/opt/arm-cortex_a8-linux-gnueabi-linaro_4.7.4-2013.05/bin/arm-cortex_a8-linux-gnueabi-
 export ARCH=arm
 
 echo 
-echo "Making ""semaphore"_$VARIANT"_defconfig"
+echo "Making ""cyancore"_$VARIANT"_defconfig"
 
 DATE_START=$(date +"%s")
 
-make "semaphore"_$VARIANT"_defconfig"
+make "cyancore"_$VARIANT"_defconfig"
 
 eval $(grep CONFIG_INITRAMFS_SOURCE .config)
 INIT_DIR=$CONFIG_INITRAMFS_SOURCE
