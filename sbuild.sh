@@ -21,7 +21,7 @@ case "$1" in
             VER=""
 esac
 
-CYAN_VER="CyanCore-v2.7.5"
+CYAN_VER="CyanCore-v2.7.6"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $CYAN_VER`
