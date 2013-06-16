@@ -47,6 +47,7 @@ int set_task_ioprio(struct task_struct *task, int ioprio)
 	if (err)
 		return err;
 
+<<<<<<< HEAD
 	task_lock(task);
 	do {
 		ioc = task->io_context;
@@ -71,9 +72,14 @@ int set_task_ioprio(struct task_struct *task, int ioprio)
 		wmb();
 		for (i = 0; i < IOC_IOPRIO_CHANGED_BITS; i++)
 		set_bit(i, ioc->ioprio_changed);
+=======
+	ioc = get_task_io_context(task, GFP_ATOMIC, NUMA_NO_NODE);
+	if (ioc) {
+		ioc_ioprio_changed(ioc, ioprio);
+		put_io_context(ioc, NULL);
+>>>>>>> f88ebb5... Massive update to IO schedulers
 	}
 
-	task_unlock(task);
 	return err;
 }
 EXPORT_SYMBOL_GPL(set_task_ioprio);
