@@ -605,8 +605,7 @@ void add_disk(struct gendisk *disk)
 
 	disk_alloc_events(disk);
 
-	/* Register BDI before referencing it from bdev */
-
+	/* Register BDI before referencing it from bdev */ 
 	bdi = &disk->queue->backing_dev_info;
 	bdi_register_dev(bdi, disk_devt(disk));
 
@@ -619,7 +618,7 @@ void add_disk(struct gendisk *disk)
 	 * Take an extra ref on queue which will be put on disk_release()
 	 * so that it sticks around as long as @disk is there.
 	 */
-	WARN_ON_ONCE(!blk_get_queue(disk->queue));
+	WARN_ON_ONCE(blk_get_queue(disk->queue));
 
 	retval = sysfs_create_link(&disk_to_dev(disk)->kobj, &bdi->dev->kobj,
 				   "bdi");
@@ -919,11 +918,7 @@ static int __init genhd_device_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_FAST_RESUME
-beforeresume_initcall(genhd_device_init);
-#else
 subsys_initcall(genhd_device_init);
-#endif
 
 static ssize_t disk_range_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
@@ -1136,10 +1131,6 @@ static int disk_uevent(struct device *dev, struct kobj_uevent_env *env)
 		cnt++;
 	disk_part_iter_exit(&piter);
 	add_uevent_var(env, "NPARTS=%u", cnt);
-#ifdef CONFIG_USB_HOST_NOTIFY
-	if (disk->interfaces == GENHD_IF_USB)
-		add_uevent_var(env, "MEDIAPRST=%d", disk->media_present);
-#endif
 	return 0;
 }
 
@@ -1187,7 +1178,7 @@ static int diskstats_show(struct seq_file *seqf, void *v)
 				"wsect wuse running use aveq"
 				"\n\n");
 	*/
-
+ 
 	disk_part_iter_init(&piter, gp, DISK_PITER_INCL_EMPTY_PART0);
 	while ((hd = disk_part_iter_next(&piter))) {
 		cpu = part_stat_lock();
@@ -1211,7 +1202,7 @@ static int diskstats_show(struct seq_file *seqf, void *v)
 			);
 	}
 	disk_part_iter_exit(&piter);
-
+ 
 	return 0;
 }
 
@@ -1539,32 +1530,30 @@ void disk_unblock_events(struct gendisk *disk)
 }
 
 /**
- * disk_flush_events - schedule immediate event checking and flushing
- * @disk: disk to check and flush events for
- * @mask: events to flush
+ * disk_check_events - schedule immediate event checking
+ * @disk: disk to check events for
  *
- * Schedule immediate event checking on @disk if not blocked.  Events in
- * @mask are scheduled to be cleared from the driver.  Note that this
- * doesn't clear the events from @disk->ev.
+ * Schedule immediate event checking on @disk if not blocked.
  *
  * CONTEXT:
- * If @mask is non-zero must be called with bdev->bd_mutex held.
+ * Don't care.  Safe to call from irq context.
  */
-void disk_flush_events(struct gendisk *disk, unsigned int mask)
+void disk_check_events(struct gendisk *disk)
 {
 	struct disk_events *ev = disk->ev;
+	unsigned long flags;
 
 	if (!ev)
 		return;
 
-	spin_lock_irq(&ev->lock);
-	ev->clearing |= mask;
+	spin_lock_irqsave(&ev->lock, flags);
 	if (!ev->block) {
 		cancel_delayed_work(&ev->dwork);
 		queue_delayed_work(system_nrt_freezable_wq, &ev->dwork, 0);
 	}
-	spin_unlock_irq(&ev->lock);
+	spin_unlock_irqrestore(&ev->lock, flags);
 }
+EXPORT_SYMBOL_GPL(disk_check_events);
 
 /**
  * disk_clear_events - synchronously check, clear and return pending events
@@ -1619,15 +1608,12 @@ static void disk_events_workfn(struct work_struct *work)
 	struct gendisk *disk = ev->disk;
 	char *envp[ARRAY_SIZE(disk_uevents) + 1] = { };
 	unsigned int clearing = ev->clearing;
-	unsigned int events = 0;
+	unsigned int events;
 	unsigned long intv;
 	int nr_events = 0, i;
 
-#ifdef CONFIG_USB_HOST_NOTIFY
-	if (disk->interfaces != GENHD_IF_USB)
-		/* check events */
-		events = disk->fops->check_events(disk, clearing);
-#endif
+	/* check events */
+	events = disk->fops->check_events(disk, clearing);
 
 	/* accumulate pending events and schedule next poll if necessary */
 	spin_lock_irq(&ev->lock);
@@ -1651,13 +1637,8 @@ static void disk_events_workfn(struct work_struct *work)
 		if (events & disk->events & (1 << i))
 			envp[nr_events++] = disk_uevents[i];
 
-#ifdef CONFIG_USB_HOST_NOTIFY
-		if (disk->interfaces != GENHD_IF_USB) {
-			if (nr_events)
-				kobject_uevent_env(&disk_to_dev(disk)->kobj,
-						KOBJ_CHANGE, envp);
-		}
-#endif
+	if (nr_events)
+		kobject_uevent_env(&disk_to_dev(disk)->kobj, KOBJ_CHANGE, envp);
 }
 
 /*
@@ -1762,7 +1743,7 @@ static int disk_events_set_dfl_poll_msecs(const char *val,
 	mutex_lock(&disk_events_mutex);
 
 	list_for_each_entry(ev, &disk_events, node)
-		disk_flush_events(ev->disk, 0);
+		disk_check_events(ev->disk);
 
 	mutex_unlock(&disk_events_mutex);
 
