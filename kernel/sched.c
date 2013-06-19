@@ -3411,7 +3411,7 @@ static void calc_global_nohz(void)
 	/*
 	 * It could be the one fold was all it took, we done!
 	 */
-	if (time_before(jiffies, calc_load_update + 10))
+	if (time_before_eq(jiffies, calc_load_update + 10))
 		return;
 
 	/*
@@ -3467,7 +3467,7 @@ void calc_global_load(unsigned long ticks)
 {
 	long active;
 
-	if (time_before(jiffies, calc_load_update + 10))
+	if (time_before_eq(jiffies, calc_load_update + 10))
 		return;
 
 	active = atomic_long_read(&calc_load_tasks);
@@ -3498,7 +3498,7 @@ static void calc_load_account_active(struct rq *this_rq)
 {
 	long delta;
 
-	if (time_before(jiffies, this_rq->calc_load_update))
+	if (time_before_eq(jiffies, this_rq->calc_load_update))
 		return;
 
 	delta  = calc_load_fold_active(this_rq);
