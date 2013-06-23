@@ -25,8 +25,9 @@ CYAN_VER="CyanCore-v2.8.0"
 
 #export KBUILD_BUILD_VERSION="2"
 export LOCALVERSION="-"`echo $CYAN_VER`
-#export CROSS_COMPILE=/opt/gcc-linaro-arm-linux-gnueabihf-4.7-2013.04-20130415_linux/bin/arm-linux-gnueabihf-
-export CROSS_COMPILE=/opt/arm-cortex_a8-linux-gnueabi-linaro_4.7.4-2013.05/bin/arm-cortex_a8-linux-gnueabi-
+#export CROSS_COMPILE=/opt/arm-cortex_a8-linux-gnueabi-linaro_4.7.4-2013.05/bin/arm-cortex_a8-linux-gnueabi-
+
+export CROSS_COMPILE=/opt/arm-cortex_a8-linux-gnueabi-linaro_4.7.4-2013.06/bin/arm-cortex_a8-linux-gnueabi-
 export ARCH=arm
 
 echo 
