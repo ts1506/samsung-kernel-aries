@@ -688,7 +688,7 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	 */
 	if (dbs_tuners_ins.early_demand) {
 		if (max_load > this_dbs_info->prev_load &&
-			(max_load - this_dbs_info->prev_load >
+		   (max_load - this_dbs_info->prev_load >
 		    dbs_tuners_ins.grad_up_threshold * policy->cur))
 			boost_freq = 1;
 
@@ -726,27 +726,27 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	} else {
 		unsigned int freq_next;
 
-	/* check for frequency boost */
-	if (dbs_tuners_ins.boosted && policy->cur < boostfreq) {
-		dbs_freq_increase(policy, boostfreq);
-		return;
-	}
+		/* check for frequency boost */
+		if (dbs_tuners_ins.boosted && policy->cur < boostfreq) {
+			dbs_freq_increase(policy, boostfreq);
+			return;
+		}
 
-	/* Calculate momentum and update sampling down factor */
+		/* Calculate momentum and update sampling down factor */
 
-	if (this_dbs_info->momentum_adder > 1) {
-		this_dbs_info->momentum_adder -= 2;
-		dbs_tuners_ins.sampling_down_momentum =
-		(this_dbs_info->momentum_adder *
-		dbs_tuners_ins.sampling_down_max_mom) /
-		dbs_tuners_ins.sampling_down_mom_sens;
-		dbs_tuners_ins.sampling_down_factor =
-		orig_sampling_down_factor +
-		dbs_tuners_ins.sampling_down_momentum;
-	}
+		if (this_dbs_info->momentum_adder > 1) {
+			this_dbs_info->momentum_adder -= 2;
+			dbs_tuners_ins.sampling_down_momentum =
+				(this_dbs_info->momentum_adder *
+			 	dbs_tuners_ins.sampling_down_max_mom) /
+			 	dbs_tuners_ins.sampling_down_mom_sens;
+			dbs_tuners_ins.sampling_down_factor =
+				orig_sampling_down_factor +
+			 	dbs_tuners_ins.sampling_down_momentum;
+		}
 
-	/* Calculate the next frequency proportional to load */
-	freq_next = max_load * policy->cpuinfo.max_freq / 100;
+		/* Calculate the next frequency proportional to load */
+		freq_next = max_load * policy->cpuinfo.max_freq / 100;
 
 		if (dbs_tuners_ins.boosted &&
 				freq_next < boostfreq) {
