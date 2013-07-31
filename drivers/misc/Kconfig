@@ -630,7 +630,7 @@ config GENERIC_BLN
 
 config SAI
        tristate "SAI support"
-       default y
+       default n
        help
          Say Y here to enable the SAI service
 
