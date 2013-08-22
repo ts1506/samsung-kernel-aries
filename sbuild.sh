@@ -16,6 +16,21 @@ case "$1" in
             VER="v"
             ;;
 
+	galaxys42)
+            VARIANT="galaxys42"
+            VER=""
+            ;;
+
+        captivate42)
+            VARIANT="captivate42"
+            VER="c"
+            ;;
+
+        vibrant)
+            VARIANT="vibrant42"
+            VER="v"
+            ;;
+
         *)
             VARIANT="galaxys"
             VER=""
