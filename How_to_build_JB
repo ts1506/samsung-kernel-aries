@@ -8,7 +8,7 @@ You need a modern Linux box (preferably) with git and linaro toolchain installed
 (www.linaro.org).
 
 First you need to setup the directory that within you will clone the kernel and 
-initramfs repository. In this guide we will setup them in ~/semaphore but you 
+initramfs repository. In this guide we will setup them in ~/cyancore but you 
 can do it in any directory you want.
 
 
@@ -16,85 +16,76 @@ can do it in any directory you want.
 
 In your home directory (~/) create the directories:
 
-mkdir -p semaphore/output/galaxys
-mkdir -p semaphore/output/captivate
-mkdir -p semaphore/output/vibrant
+mkdir -p cyancore/output/galaxys
+mkdir -p cyancore/output/captivate
+mkdir -p cyancore/output/vibrant
+mkdir -p cyancore/output/galaxys42
+mkdir -p cyancore/output/captivate42
+mkdir -p cyancore/output/vibrant42
 
-The above will be the output directories for galaxy s, captivate and vibrant 
-versions.
+The above will be the output directories for galaxy s, captivate and vibrant and their 4.2 versions.
 
 Build script also needs a symbolic link to your toolchain bin directory:
 
-cd semaphore
+cd cyancore
 ln -s gcc-linaro-arm-linux-gnueabihf-2012.09-20120921_linux/bin/ toolchain
 
-The directory structure is complete. Now, you are ready to clone Semaphore code.
+The directory structure is complete. Now, you are ready to clone CyanCore code.
 
 
 2. Setting up repositories
 
-While you are still in ~/semaphore directory do the following.
+While you are still in ~/cyancore directory do the following.
 
 Clone the main kernel repository branch jellybean:
 
-git clone -b jellybean git://github.com/stratosk/samsung-kernel-aries
+git clone -b jb-4.3 git://github.com/ts1506/samsung-kernel-aries
 
 Clone the initramfs:
 
+git clone -b jb-4.2.1 git://github.com/stratosk/ics-ramdisk
+
+Rename the output folder as ics-ramdisk-4.2
+
 git clone git://github.com/stratosk/ics-ramdisk
-
-Due to the fact that github does not preserve file permissions, I also included
-initramfs for each SGS variant as a tarball. You need to do the following 
-only the first time you clone the ics-ramdisk repo. Of course, you can safely
-do this every time you fetch new code.
-
-cd ics-ramdisk
-tar zxvf jb_combo.tar.gz
-tar zxvf jb_combo_c.tar.gz
-tar zxvf jb_combo_v.tar.gz
 
 3. Kernel configuration
 
-I use 3 files to keep kernel's configuration for each variant.
+I use 6 files to keep kernel's configuration for each variant.
 The files are placed in arch/arm/configs directory and they are named:
 
-semaphore_galaxys_defconfig
-semaphore_captivate_defconfig
-semaphore_vibrant_defconfig
+cyancore_galaxys_defconfig
+cyancore_captivate_defconfig
+cyancore_vibrant_defconfig
+cyancore_galaxys42_defconfig
+cyancore_captivate42_defconfig
+cyancore_vibrant42_defconfig
 
 When, you will run the build script, the proper configuration will be used
 according to the selected variant (please see next section).
 If you need any change kernel configuration, you have to edit these files
 before the building procedure. 
-Leave these files unchanged, if you want Semaphore's default settings.
+Leave these files unchanged, if you want CyanCore's default settings.
 
 You are ready to build!
 
 
 4. Building the kernel
 
-I create a script that automates the building procedure. The script can accept
-2 arguments: 
-a) Kernel variant: galaxys, captivate, vibrant 
-b) s argument to build the kernel for hugemem compatible ROMs
+I create a script that batch builds all 4 kernels (Galaxy S JB4.2 and JB4.3 , and the rest 2 JB4.2)
+using semaphore's build script as base.
 
-If you run the script without arguments will build the normal version 
-for galaxys.
-To build the kernel for galaxys:
+To build the kernels
 
-cd ~/semaphore/samsung-kernel-aries
-./sbuild galaxys
+cd ~/cyancore/samsung-kernel-aries
+sudo sh ./batchbuild.sh
 
-and for 's' version:
-./sbuild galaxys s
-
-Wait few minutes (time depends on the machine - on my laptop 15-20) and hopefully 
-the compilation will end.
+Wait few minutes (time depends on the machine - on my PC, the 4 kernels take 4 mins total) and hopefully the compilation will end.
 Watch the output for possible errors. A successful compilation must NOT have any
 error. It may have some warnings, but you can safely ignore them. 
 If everything was OK, you must have the zImage file in 
-~/semaphore/samsung-kernel-aries/arch/arm/boot directory.
+~/cyancore/samsung-kernel-aries/arch/arm/boot directory.
 Also the script will automatically prepare the CWM flashable zip and the 
-ODIN/Heimdall flashable in ~/semaphore/output directory (in respective variant)
+ODIN/Heimdall flashable in ~/cyancore/output directory (in respective variant)
 
 Now, you are ready to flash the kernel!
