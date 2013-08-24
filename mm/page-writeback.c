@@ -721,7 +721,7 @@ int dirty_writeback_centisecs_handler(ctl_table *table, int write,
 	return 0;
 }
 
-ifdef CONFIG_DYNAMIC_PAGE_WRITEBACK
+#ifdef CONFIG_DYNAMIC_PAGE_WRITEBACK
 /*
  * Manages the dirty page writebacks activation status
  */
