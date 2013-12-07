@@ -43,7 +43,7 @@ git clone -b jb-4.3 git://github.com/ts1506/samsung-kernel-aries
 
 Clone the initramfs:
 
-git clone -b jb-4.2.1 git://github.com/stratosk/ics-ramdisk
+git clone -b jb-4.2.1 git://github.com/ts1506/ics-ramdisk
 
 Rename the output folder as ics-ramdisk-4.2
 
@@ -57,9 +57,9 @@ The files are placed in arch/arm/configs directory and they are named:
 cyancore_galaxys_defconfig
 cyancore_captivate_defconfig
 cyancore_vibrant_defconfig
-cyancore_galaxys42_defconfig
-cyancore_captivate42_defconfig
-cyancore_vibrant42_defconfig
+cyancore_galaxyss_defconfig
+cyancore_captivates_defconfig
+cyancore_vibrants_defconfig
 
 When, you will run the build script, the proper configuration will be used
 according to the selected variant (please see next section).
