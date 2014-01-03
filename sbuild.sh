@@ -16,21 +16,6 @@ case "$1" in
             VER="v"
             ;;
 
-	galaxys_small)
-            VARIANT="galaxyss"
-            VER=""
-            ;;
-
-        captivate_small)
-            VARIANT="captivates"
-            VER="c"
-            ;;
-
-        vibrant_small)
-            VARIANT="vibrants"
-            VER="v"
-            ;;
-
         *)
             VARIANT="galaxys"
             VER=""

@@ -14,4 +14,3 @@ cd ~/semaphore/samsung-kernel-aries
 
 # Build KK 4.4 kernels
 sh ./sbuild.sh galaxys
-sh ./sbuild.sh galaxys_small
